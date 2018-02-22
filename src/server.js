@@ -5,10 +5,9 @@ import Styletron from 'styletron-server';
 import { StyletronProvider } from 'styletron-react';
 import doc from 'lib/__html';
 
-// TODO: routing!
-import Page from 'pages/article';
-
-export default (): string => {
+const renderPage = async function renderPage(pageName) {
+    const page = await import(`./pages/${pageName}`);
+    const Page = page.default;
     const state = {}; // TODO: get state from request
     const styletron = new Styletron();
 
@@ -21,4 +20,10 @@ export default (): string => {
     const stylesForHead = styletron.getStylesheetsHtml();
 
     return doc({ html, stylesForHead, state });
+};
+
+export default async (req: {}): string => {
+    if (req.url.includes('/pages/')) { // TODO: regex plz
+        return renderPage(req.url.split('/pages/')[1]);
+    }
 };
