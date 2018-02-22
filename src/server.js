@@ -3,14 +3,13 @@
 import { renderToString } from 'react-dom/server';
 import Styletron from 'styletron-server';
 import { StyletronProvider } from 'styletron-react';
-import requireDir from 'require-dir';
-
 import doc from 'lib/__html';
 
-const pages = requireDir('./pages');
+// TODO: routing!
+import Page from 'pages/article';
 
-export default (state: { page: string }): string => {
-    const Page = pages[state.page].default;
+export default (): string => {
+    const state = {}; // TODO: get state from request
     const styletron = new Styletron();
 
     const html = renderToString(
