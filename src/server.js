@@ -2,17 +2,18 @@
 
 import fs from 'fs';
 import path from 'path';
-import pify from 'pify';
+import { promisify } from 'util';
 import { renderToString } from 'react-dom/server';
 import Styletron from 'styletron-server';
 import { StyletronProvider } from 'styletron-react';
+import requireDir from 'require-dir';
 import doc from 'lib/__html';
 
-const readFile = pify(fs.readFile);
+const pages = requireDir('./pages');
+const readFile = promisify(fs.readFile);
 
 const renderPage = async function renderPage(pageName) {
-    const page = await import(`./pages/${pageName}`);
-    const Page = page.default;
+    const Page = pages[pageName].default;
     const state = { page: pageName };
     const styletron = new Styletron();
 
