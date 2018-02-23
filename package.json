@@ -12,6 +12,7 @@
     "homepage": "https://github.com/guardian/guui#readme",
     "dependencies": {
         "micro": "^9.1.0",
+        "pify": "^3.0.0",
         "pm2": "^2.10.1",
         "react": "^16.2.0",
         "react-dom": "^16.2.0",
