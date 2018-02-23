@@ -8,7 +8,7 @@ import doc from 'lib/__html';
 const renderPage = async function renderPage(pageName) {
     const page = await import(`./pages/${pageName}`);
     const Page = page.default;
-    const state = {}; // TODO: get state from request
+    const state = { page: pageName };
     const styletron = new Styletron();
 
     const html = renderToString(
