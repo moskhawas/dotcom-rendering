@@ -27,6 +27,10 @@ dev: clear install
 start: clear install
 	@env pm2 start micro -- -p 9000
 
+deploy: validate
+	$(call log, "deploying app")
+	@env ./build.sh
+
 # quality #########################################
 
 flow: install
