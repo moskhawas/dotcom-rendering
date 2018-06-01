@@ -21,7 +21,7 @@ export default class AudioPage extends Component {
 
 // temporary fixtures
 
-const sourceUrl = "https://audio.guim.co.uk/2018/05/23-48278-gdn.books.180523.sb.man-booker-david-graeber.mp3";
+const sourceUrl = "/static/audio/test.mp3";
 
 const duration = "0:30:45";
 

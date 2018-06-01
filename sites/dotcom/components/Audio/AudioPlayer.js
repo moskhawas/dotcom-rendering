@@ -3,6 +3,9 @@ import { Component } from '@guardian/guui';
 
 import Time from './Time';
 
+const BUCKET_COUNT = 100;
+const TICK = 500;
+
 export default class AudioPlayer extends Component {
     constructor() {
         super();
@@ -14,21 +17,26 @@ export default class AudioPlayer extends Component {
         this.setAudio = el => {
             this.audio = el;
             this.audio.addEventListener('durationchange', () => {
-                this.setState({ ready: true, duration: this.audio.duration });
-            });
+                this.setState({ 
+                    ready: true, 
+                    duration: this.audio.duration
+                });
+            }, { once: true });
             this.audio.addEventListener('timeupdate', this.playing);
             this.context = new window.AudioContext();
             this.analyser = this.context.createAnalyser();
+            this.analyser.fftSize = 256;
+            this.dataArray = new Uint8Array(this.analyser.frequencyBinCount)
             this.source = this.context.createMediaElementSource(this.audio);
             this.source.connect(this.analyser);
-            this.dataArray = new Uint8Array(this.analyser.frequencyBinCount);
         }
         this.state = {
             ready: false,
             playing: false,
             currentTime: 0,
-            track: 0
-        }
+            interval: 1,
+            buckets: []
+        };
     }
     
     componentDidMount() {
@@ -38,57 +46,71 @@ export default class AudioPlayer extends Component {
         this.setState({ playing: !this.state.playing })
         if (this.state.playing) {
             this.audio.play();
-            window.requestAnimationFrame(this.draw);
+            if (!this.state.ready) {
+                this.audio.addEventListener('durationchange', () => {
+                    const interval = this.audio.duration / BUCKET_COUNT;
+                    this.sample();
+                    this.setState({ 
+                        interval,
+                        sampler: window.setInterval(this.sample, interval * 1000)
+                    });
+                    window.requestAnimationFrame(this.draw);
+                }, { once: true });
+            } else {
+                this.sample();
+                this.setState({ 
+                    sampler: window.setInterval(this.sample, this.state.interval * 1000)
+                });
+                window.requestAnimationFrame(this.draw);
+            }
         } else {
             this.audio.pause();
+            window.clearInterval(this.state.sampler);
+            this.setState({ sampler: null });
             window.cancelAnimationFrame(this.draw);
         }
     }
 
     playing = () => {
-        this.setState({ 
-            currentTime: this.audio.currentTime
-        });
-        console.log(this.audio.currentTime)
+        this.setState({ currentTime: this.audio.currentTime });
     }
-
+    
     seek = e => {
         this.audio.currentTime = e.target.value * this.audio.duration / 100;
     }
+    
+    sample = () => {
+        this.setState(() => {
+            this.analyser.getByteFrequencyData(this.dataArray);
+            const factor = Math.max(1, ...this.dataArray);
+            const mean = this.dataArray.reduce((res, x) => res + x, 0) / this.dataArray.length;
+            const barHeight = mean / factor * this.canvasH;
+            this.state.buckets.push(barHeight);
+        });
+    }
 
     draw = () => {
-        this.analyser.getByteTimeDomainData(this.dataArray);
-        this.drawing.fillStyle = 'rgb(200, 200, 200)';
+        this.drawing.fillStyle = 'rgb(0, 0, 0)';
         this.drawing.fillRect(0, 0, this.canvasW, this.canvasH);
-        this.drawing.lineWidth = 2;
-        this.drawing.strokeStyle = 'rgb(0, 0, 0)';
-        this.drawing.beginPath();
 
-        const sliceWidth = this.canvasW * 1.0 / this.dataArray.length;
-        let x = 0;
-
-        for(let i = 0; i < this.dataArray.length; i++) {
-            const v = this.dataArray[i] / 128.0;
-            const y = v * this.canvasH/2;
-    
-            if (i === 0) {
-              this.drawing.moveTo(x, y);
-            } else {
-              this.drawing.lineTo(x, y);
-            }
-    
-            x += sliceWidth;
-        }
-
-        this.drawing.lineTo(this.canvasW, this.canvasH / 2);
-        this.drawing.stroke();
+        const barWidth = (this.canvasW - BUCKET_COUNT + 1) / BUCKET_COUNT;
         
+        this.state.buckets.forEach((barHeight, i) => {
+            const barOffset = i * (barWidth + 1);
+            const playOffset = this.state.currentTime - this.state.interval * i;
+            const intensity = playOffset > this.state.interval
+                ? 255
+                : Math.floor(playOffset * 255 / this.state.interval);
+            this.drawing.fillStyle = `rgb(${intensity},0,0)`;
+            this.drawing.fillRect(barOffset, this.canvasH - barHeight, barWidth, barHeight);
+        });
+
         if (this.state.playing) {
-            window.requestAnimationFrame(this.draw);
+            window.setTimeout(() => window.requestAnimationFrame(this.draw), TICK);
         }
     }
 
-    render({ sourceUrl, mediaId }, { ready, playing, currentTime, duration, track }) {
+    render({ sourceUrl, mediaId }, { ready, playing, currentTime, duration }) {
         return (
             <div>
                 <audio ref={this.setAudio} controls="controls" data-media-id={mediaId} preload="none" controlslist="nodownload">
@@ -102,7 +124,7 @@ export default class AudioPlayer extends Component {
                     <input type="range" min="0" max="100" value={ready ? currentTime / duration * 100 : 0} onClick={this.seek} />
                     {ready ? ( <Time t={duration} /> ) : ""}
                 </div>
-                <canvas ref={this.setCanvas}></canvas>
+                <canvas ref={this.setCanvas} width="1000"></canvas>
             </div>
         );
     }
