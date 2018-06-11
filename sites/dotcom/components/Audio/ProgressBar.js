@@ -30,7 +30,6 @@ export default class ProgressBar extends Component {
     super(props);
     this.onChange = props.onChange;
     this.state = {
-      tracking: false,
       value: props.value,
       position: 0,
       width: 0
@@ -50,13 +49,12 @@ export default class ProgressBar extends Component {
   start = e => {
     const position = e.clientX - this.state.left;
     const value = position * 100 / this.state.width;
-    this.setState({ tracking: true, position, value });
+    this.setState({ position, value });
     window.addEventListener('mousemove', this.update);
     window.addEventListener('mouseup', this.stop, { once: true });
   }
   
   stop = () => {
-    this.setState({ tracking: false });
     this.onChange(this.state.value);
     window.removeEventListener('mousemove', this.update);
   }
@@ -67,7 +65,7 @@ export default class ProgressBar extends Component {
     this.setState({ value, position });
   }
 
-  render({ formattedValue, progressColour, trackColour }, { value, tracking, position, width }) {
+  render({ formattedValue, progressColour, trackColour }, { value, position, width }) {
     return (
       <Progress 
         innerRef={this.getElement} 
