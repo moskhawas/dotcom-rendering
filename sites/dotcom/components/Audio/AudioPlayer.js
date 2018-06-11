@@ -1,6 +1,9 @@
 // @flow
 import { Component } from '@guardian/guui';
 
+import { formatTime } from './utils';
+
+import ProgressBar from './ProgressBar';
 import Time from './Time';
 
 const BUCKET_COUNT = 200;
@@ -13,8 +16,8 @@ export default class AudioPlayer extends Component {
             ready: false,
             playing: false,
             currentTime: 0,
-            duration: 0,
-            volume: 0,
+            duration: NaN,
+            volume: NaN,
             interval: 1,
             buckets: []
         };
@@ -82,10 +85,6 @@ export default class AudioPlayer extends Component {
         this.setState({ currentTime: this.audio.currentTime });
     }
     
-    seek = e => {
-        this.audio.currentTime = e.target.value * this.audio.duration / 100;
-    }
-    
     volume = e => {
         this.audio.volume = e.target.value / 100;
     }
@@ -98,10 +97,12 @@ export default class AudioPlayer extends Component {
         this.audio.currentTime = Math.max(this.state.currentTime - 15, 0);
     }
 
-    seek = e => {
-        this.setState({
-            currentTime: this.audio.currentTime = this.audio.duration * e.target.value / 100
-        });
+    updateVolume = v => {
+        this.audio.volume = v / 100;
+    }
+
+    seek = v => {
+        this.audio.currentTime = this.audio.duration * v / 100;
     }
     
     sample = () => {
@@ -137,27 +138,22 @@ export default class AudioPlayer extends Component {
     }
 
     render({ sourceUrl, mediaId }, { ready, playing, currentTime, duration, volume }) {
+        const currentOffset = ready ? currentTime / duration * 100 : 0;
+
         return (
             <div>
-                <audio ref={this.setAudio} controls="controls" volume data-media-id={mediaId} preload="metadata" controlslist="nodownload">
+                <audio ref={this.setAudio} volume data-media-id={mediaId} preload="metadata">
                     <source src={sourceUrl} type="audio/mpeg" />
                 </audio>
-                <div>
-                    <button onClick={this.play}>{playing ? "Pause" : "Play"}</button>
-                    <button onClick={this.backward} disabled={!playing}>← Backward 15s</button>
-                    <button onClick={this.forward} disabled={!playing}>Forward 15s →</button>
-                </div>
-                <div>
-                    <Time t={currentTime} />
-                    <div role="progressbar" aria-valuenow={ready ? currentTime / duration * 100 : 0} aria-valuemin="0" aria-valuemax="100">20 %</div>
-                    <input type="range" min="0" max="100" value={ready ? currentTime / duration * 100 : 0} />
-                    <input type="range" min="0" max="100" onChange={this.seek} />
-                    {ready ? ( <Time t={duration} /> ) : ""}
-                </div>
-                <div>
-                    <input type="range" min="0" max="100" value={volume * 100} />
-                    <input type="range" min="0" max="100" onChange={this.volume} />
-                </div>
+                <button onClick={this.play}>{playing ? "Pause" : "Play"}</button>
+                <button onClick={this.backward} disabled={!playing}>← Backward 15s</button>
+                <button onClick={this.forward} disabled={!playing}>Forward 15s →</button>
+                <Time t={currentTime} />
+                <ProgressBar value={currentOffset} formattedValue={formatTime(currentOffset)} trackColour="#000000" progressColour="#00ffff" onChange={this.seek} />
+                {ready ? ( <Time t={duration} /> ) : ""}
+                {Number.isNaN(volume) ? "" : (
+                    <ProgressBar value={volume * 100} formattedValue={`Volume set to ${volume}`} trackColour="#000000" progressColour="#00ffff" onChange={this.updateVolume} />
+                )}
                 <canvas ref={this.setCanvas} width="1000"></canvas>
             </div>
         );
