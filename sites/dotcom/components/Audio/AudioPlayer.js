@@ -1,5 +1,5 @@
 // @flow
-import { Component } from '@guardian/guui';
+import { Component, styled } from '@guardian/guui';
 
 import { formatTime } from './utils';
 
@@ -8,6 +8,29 @@ import Time from './Time';
 
 const BUCKET_COUNT = 200;
 const TICK = 500;
+
+const AudioGrid = styled('div')({
+    display: 'grid',
+    gridTemplateColumns: '60px 1fr 1fr',
+    gridTemplateRows: '2em 60px',
+    gridTemplateAreas: '". currentTime duration" "playBtn visu visu" "playBtn track track"'
+});
+
+const TimeSpan = styled('span')(({ area }) => ({
+    gridArea: area
+}));
+
+const PlayButton = styled('button')({
+    gridArea: 'playBtn'
+});
+
+const Track = styled('div')({
+    gridArea: 'track'
+});
+
+const Visualization = styled('canvas')({
+    gridArea: 'visu'
+});
 
 export default class AudioPlayer extends Component {
     constructor() {
@@ -137,25 +160,31 @@ export default class AudioPlayer extends Component {
         }
     }
 
-    render({ sourceUrl, mediaId }, { ready, playing, currentTime, duration, volume }) {
+    render({ 
+        sourceUrl, 
+        mediaId,
+        css
+    }, { ready, playing, currentTime, duration, volume }) {
         const currentOffset = ready ? currentTime / duration * 100 : 0;
 
         return (
-            <div>
+            <AudioGrid>
                 <audio ref={this.setAudio} volume data-media-id={mediaId} preload="metadata">
                     <source src={sourceUrl} type="audio/mpeg" />
                 </audio>
-                <button onClick={this.play}>{playing ? "Pause" : "Play"}</button>
+                <PlayButton onClick={this.play}>{playing ? "Pause" : "Play"}</PlayButton>
                 <button onClick={this.backward} disabled={!playing}>← Backward 15s</button>
                 <button onClick={this.forward} disabled={!playing}>Forward 15s →</button>
-                <Time t={currentTime} />
-                <ProgressBar value={currentOffset} formattedValue={formatTime(currentOffset)} trackColour="#000000" progressColour="#00ffff" onChange={this.seek} />
-                {ready ? ( <Time t={duration} /> ) : ""}
+                <TimeSpan area="currentTime"><Time t={currentTime} /></TimeSpan>
+                <TimeSpan area="duration">{ready ? ( <Time t={duration} /> ) : ""}</TimeSpan>
+                <Track>
+                    <ProgressBar value={currentOffset} formattedValue={formatTime(currentOffset)} trackColour={css.track.trackColour} progressColour={css.track.progressColour} onChange={this.seek} />
+                </Track>
                 {Number.isNaN(volume) ? "" : (
-                    <ProgressBar value={volume * 100} formattedValue={`Volume set to ${volume}`} trackColour="#000000" progressColour="#00ffff" onChange={this.updateVolume} />
+                    <ProgressBar value={volume * 100} formattedValue={`Volume set to ${volume}`} trackColour={css.volume.trackColour} progressColour={css.volume.progressColour} onChange={this.updateVolume} />
                 )}
-                <canvas ref={this.setCanvas} width="1000"></canvas>
-            </div>
+                <Visualization innerRef={this.setCanvas}></Visualization>
+            </AudioGrid>
         );
     }
 }

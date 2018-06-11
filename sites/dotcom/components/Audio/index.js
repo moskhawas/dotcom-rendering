@@ -12,7 +12,7 @@ export default class AudioPage extends Component {
   render() {
     return (
       <div>
-        <Player sourceUrl={sourceUrl} duration={duration} mediaId={mediaId} />
+        <Player sourceUrl={sourceUrl} duration={duration} mediaId={mediaId} css={cssProps} />
         <Episodes currentPage={1} pageSize={10} pages={114} total={1136} episodes={episodes} />
       </div>
     )
@@ -20,6 +20,17 @@ export default class AudioPage extends Component {
 }
 
 // temporary fixtures
+
+const cssProps = {
+  volume: {
+    trackColour: '#000000',
+    progressColour: '#00ff00'
+  },
+  track: {
+    trackColour: '#000000',
+    progressColour: '#0000ff'
+  }
+}
 
 const sourceUrl = "/static/audio/test.mp3";
 
