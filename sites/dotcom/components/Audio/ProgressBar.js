@@ -28,7 +28,7 @@ const pct = n => `${n}%`;
 export default class ProgressBar extends Component {
   constructor(props) {
     super(props);
-
+    this.onChange = props.onChange;
     this.state = {
       tracking: false,
       value: props.value,
@@ -51,11 +51,14 @@ export default class ProgressBar extends Component {
     const position = e.clientX - this.state.left;
     const value = position * 100 / this.state.width;
     this.setState({ tracking: true, position, value });
+    window.addEventListener('mousemove', this.update);
+    window.addEventListener('mouseup', this.stop, { once: true });
   }
-
+  
   stop = () => {
     this.setState({ tracking: false });
     this.onChange(this.state.value);
+    window.removeEventListener('mousemove', this.update);
   }
 
   update = e => {
@@ -70,8 +73,6 @@ export default class ProgressBar extends Component {
         innerRef={this.getElement} 
         backgroundColor={progressColour}
         onMouseDown={this.start}
-        onMouseUp={tracking ? this.stop : false}
-        onMouseMove={tracking ? this.update : false}
         role="progressbar" 
         aria-valuenow={value} 
         aria-valuemin="0" 
