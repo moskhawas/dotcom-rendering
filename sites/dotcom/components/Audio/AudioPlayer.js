@@ -47,6 +47,19 @@ export default class AudioPlayer extends Component {
     }
     
     componentDidMount() {
+        if (Number.isNaN(this.audio.duration)) {
+            this.audio.addEventListener('durationchange', this.ready, { once: true });
+        } else {
+            this.ready();
+        }
+        this.audio.addEventListener('volumechange', this.onVolumeChange);
+        this.audio.addEventListener('timeupdate', this.playing);
+        this.context = new window.AudioContext();
+        this.analyser = this.context.createAnalyser();
+        this.analyser.fftSize = 256;
+        this.dataArray = new Uint8Array(this.analyser.frequencyBinCount)
+        this.source = this.context.createMediaElementSource(this.audio);
+        this.source.connect(this.analyser);
     }
     
     setCanvas = el => {
@@ -57,32 +70,18 @@ export default class AudioPlayer extends Component {
 
     setAudio = el => {
         this.audio = el;
-        if (Number.isNaN(this.audio.duration)) {
-            this.audio.addEventListener('durationchange', () => {
-                this.setState({ 
-                    ready: true, 
-                    duration: this.audio.duration,
-                    volume: this.audio.volume
-                });
-            }, { once: true });
-        } else {
-            this.setState({ 
-                ready: true, 
-                duration: this.audio.duration,
-                volume: this.audio.volume
-            });
-        }
-        this.audio.addEventListener('volumechange', () => {
-            this.setState({ volume: this.audio.volume });
+    }
+
+    ready = () => {
+        this.setState({ 
+            ready: true, 
+            duration: this.audio.duration,
+            volume: this.audio.volume
         });
-        this.audio.addEventListener('timeupdate', this.playing);
-        this.audio.addEventListener('seek', this.seek);
-        this.context = new window.AudioContext();
-        this.analyser = this.context.createAnalyser();
-        this.analyser.fftSize = 256;
-        this.dataArray = new Uint8Array(this.analyser.frequencyBinCount)
-        this.source = this.context.createMediaElementSource(this.audio);
-        this.source.connect(this.analyser);
+    }
+
+    onVolumeChange = () => {
+        this.setState({ volume: this.audio.volume });
     }
 
     play = () => {
