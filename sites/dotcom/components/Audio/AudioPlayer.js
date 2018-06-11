@@ -53,7 +53,7 @@ export default class AudioPlayer extends Component {
             this.ready();
         }
         this.audio.addEventListener('volumechange', this.onVolumeChange);
-        this.audio.addEventListener('timeupdate', this.playing);
+        this.audio.addEventListener('timeupdate', this.onTimeUpdate);
         this.context = new window.AudioContext();
         this.analyser = this.context.createAnalyser();
         this.analyser.fftSize = 256;
@@ -84,33 +84,30 @@ export default class AudioPlayer extends Component {
         this.setState({ volume: this.audio.volume });
     }
 
-    play = () => {
-        this.setState({ playing: !this.state.playing })
-        if (this.state.playing) {
-            this.audio.play();
-            const interval = this.audio.duration / BUCKET_COUNT;
-            this.sample();
-            this.setState({ 
-                interval,
-                sampler: window.setInterval(this.sample, interval * 1000)
-            });
-            window.requestAnimationFrame(this.draw);
-        } else {
-            this.audio.pause();
-            window.clearInterval(this.state.sampler);
-            this.setState({ sampler: null });
-            window.cancelAnimationFrame(this.draw);
-        }
-    }
-
-    playing = () => {
+    onTimeUpdate = () => {
         this.setState({ currentTime: this.audio.currentTime });
     }
-    
-    volume = e => {
-        this.audio.volume = e.target.value / 100;
-    }
 
+    play = () => {
+        this.setState({ playing: !this.state.playing }, () => {
+            if (this.state.playing) {
+                this.audio.play();
+                const interval = this.audio.duration / BUCKET_COUNT;
+                this.sample();
+                this.setState({ 
+                    interval,
+                    sampler: window.setInterval(this.sample, interval * 1000)
+                });
+                window.requestAnimationFrame(this.draw);
+            } else {
+                this.audio.pause();
+                window.clearInterval(this.state.sampler);
+                this.setState({ sampler: null });
+                window.cancelAnimationFrame(this.draw);
+            }
+        });
+    }
+    
     forward = () => {
         this.audio.currentTime = Math.min(this.state.currentTime + 15, this.state.duration);
     }
