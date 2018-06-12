@@ -60,12 +60,17 @@ export default class AudioPlayer extends Component {
         this.dataArray = new Uint8Array(this.analyser.frequencyBinCount)
         this.source = this.context.createMediaElementSource(this.audio);
         this.source.connect(this.analyser);
+
+        const rect = this.canvas.getBoundingClientRect();
+        this.setState({
+            canvasH: rect.height,
+            canvasW: rect.width
+        });
     }
     
     setCanvas = el => {
+        this.canvas = el;
         this.drawing = el.getContext("2d");
-        this.canvasH = el.height;
-        this.canvasW = el.width;
     }
 
     setAudio = el => {
@@ -129,17 +134,17 @@ export default class AudioPlayer extends Component {
             this.analyser.getByteFrequencyData(this.dataArray);
             const factor = Math.max(1, ...this.dataArray);
             const mean = this.dataArray.reduce((res, x) => res + x, 0) / this.dataArray.length;
-            const minHeight = this.canvasH / 10;
-            const barHeight = minHeight + (mean / factor * (this.canvasH - minHeight));
+            const minHeight = this.state.canvasH / 10;
+            const barHeight = minHeight + (mean / factor * (this.state.canvasH - minHeight));
             this.state.buckets.push(barHeight);
         });
     }
 
     draw = () => {
         this.drawing.fillStyle = 'rgb(0, 0, 0)';
-        this.drawing.fillRect(0, 0, this.canvasW, this.canvasH);
+        this.drawing.fillRect(0, 0, this.state.canvasW, this.state.canvasH);
 
-        const barWidth = (this.canvasW - BUCKET_COUNT + 1) / BUCKET_COUNT;
+        const barWidth = (this.state.canvasW - BUCKET_COUNT + 1) / BUCKET_COUNT;
         
         this.state.buckets.forEach((barHeight, i) => {
             const barOffset = i * (barWidth + 1);
@@ -148,7 +153,7 @@ export default class AudioPlayer extends Component {
                 ? 255
                 : Math.max(30, 30 + Math.floor(playOffset * 225 / this.state.interval));
             this.drawing.fillStyle = `rgb(${intensity},0,0)`;
-            this.drawing.fillRect(barOffset, this.canvasH - barHeight, barWidth, barHeight);
+            this.drawing.fillRect(barOffset, this.state.canvasH - barHeight, barWidth, barHeight);
         });
 
         if (this.state.playing) {
@@ -159,13 +164,14 @@ export default class AudioPlayer extends Component {
     render({ 
         sourceUrl, 
         mediaId,
+        controls,
         css
-    }, { ready, playing, currentTime, duration, volume }) {
+    }, { ready, playing, currentTime, duration, volume, canvasW, canvasH }) {
         const currentOffset = ready ? currentTime / duration * 100 : 0;
 
         return (
             <AudioGrid>
-                <audio ref={this.setAudio} volume data-media-id={mediaId} preload="metadata">
+                <audio ref={this.setAudio} controls={controls} volume data-media-id={mediaId} preload="metadata">
                     <source src={sourceUrl} type="audio/mpeg" />
                 </audio>
                 <PlayButton onClick={this.play}>{playing ? "Pause" : "Play"}</PlayButton>
@@ -179,7 +185,7 @@ export default class AudioPlayer extends Component {
                 {Number.isNaN(volume) ? "" : (
                     <ProgressBar value={volume * 100} formattedValue={`Volume set to ${volume}`} trackColour={css.volume.trackColour} progressColour={css.volume.progressColour} onChange={this.updateVolume} />
                 )}
-                <Visualization innerRef={this.setCanvas}></Visualization>
+                <Visualization innerRef={this.setCanvas} width={canvasW} height={canvasH}></Visualization>
             </AudioGrid>
         );
     }
