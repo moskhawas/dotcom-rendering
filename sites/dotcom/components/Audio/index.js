@@ -2,7 +2,6 @@
 
 import { Component } from  '@guardian/guui';
 import Player from './AudioPlayer';
-import Episodes from './Episodes';
 
 export default class AudioPage extends Component {
   constructor(props) {
