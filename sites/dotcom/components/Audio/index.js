@@ -11,10 +11,7 @@ export default class AudioPage extends Component {
 
   render() {
     return (
-      <div>
-        <Player sourceUrl={sourceUrl} duration={duration} mediaId={mediaId} css={cssProps} />
-        <Episodes currentPage={1} pageSize={10} pages={114} total={1136} episodes={episodes} />
-      </div>
+      <Player sourceUrl={sourceUrl} duration={duration} mediaId={mediaId} css={cssProps} />
     )
   }
 }
