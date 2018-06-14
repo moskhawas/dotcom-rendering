@@ -49,3 +49,11 @@ export const pillars = {
     culture: palette.gold.medium,
     lifestyle: palette.pink.medium,
 };
+
+export const pillarsHighlight = {
+    news: '#ff4e36',
+    opinion: '#ff7f0f',
+    sport: '#00b2ff',
+    culture: '#eacca0',
+    lifestyle: '#ffabdb',    
+};
