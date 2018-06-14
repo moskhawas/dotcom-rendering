@@ -1,35 +1,119 @@
 // @flow
 import { Component, styled } from '@guardian/guui';
+import { pillarsHighlight } from '@guardian/pasteup/palette';
 
 import { formatTime } from './utils';
 
 import ProgressBar from './ProgressBar';
 import Time from './Time';
-
-const BUCKET_COUNT = 200;
-const TICK = 500;
+import palette from '@guardian/pasteup/palette';
 
 const AudioGrid = styled('div')({
+    borderTop: '1px solid #767676',
     display: 'grid',
-    gridTemplateColumns: '60px 1fr 1fr',
-    gridTemplateRows: '2em 60px',
-    gridTemplateAreas: '". currentTime duration" "playBtn visu visu" "playBtn track track"'
+    gridTemplateColumns: "220px 1fr 1fr",
+    gridTemplateRows: "1fr 90px 1fr 1fr",
+    gridTemplateAreas: '". currentTime duration" "controls wave wave" "volume track track" "download links links"',
+    backgroundColor: palette.neutral[1],
+    color: palette.neutral[5]
 });
 
 const TimeSpan = styled('span')(({ area }) => ({
-    gridArea: area
+    [area === 'currentTime' ? 'borderLeft' : 'borderRight']: '1px solid #767676',
+    [area === 'currentTime' ? 'paddingLeft' : 'paddingRight']: '4px',
+    gridArea: area,
+    paddingTop: '7px',
+    textAlign: area === 'duration' ? 'right' : 'left'
 }));
 
-const PlayButton = styled('button')({
-    gridArea: 'playBtn'
+const Controls = styled('div')({
+    gridArea: 'controls',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '33px 0'
 });
 
 const Track = styled('div')({
-    gridArea: 'track'
+    gridArea: 'track',
+    alignSelf: 'center',
+    padding: '0 10px'
 });
 
-const Visualization = styled('canvas')({
-    gridArea: 'visu'
+const Volume = styled('div')({
+    gridArea: 'volume',
+    display: 'flex',
+    alignItems: 'center',
+    padding: '0 20px',
+    '> img': {
+        marginRight: '6px'
+    },
+    'div[role="progressbar"]': {
+        flex: 1
+    }
+});
+
+const Download = styled('div')({
+    borderTop: '1px solid #767676',
+    gridArea: 'download',
+    paddingLeft: '20px',
+    paddingTop: '8px',
+    a: {
+        color: '#cbcbcb', // TODO: add to the palette
+        border: '1px solid rgba(118, 118, 118, 0.7)',
+        borderRadius: '15px',
+        display: 'inline-flex',
+        alignItems: 'center',
+        padding: '3px 12px',
+        fontSize: '12px',
+        textDecoration: 'none'
+    },
+    img: {
+        height: '18px',
+        width: '18px'
+    }
+})
+
+const Links = styled('div')({
+    borderTop: '1px solid #767676',
+    borderLeft: '1px solid #767676',
+    gridArea: 'links',
+    display: 'flex',
+    padding: '10px 4px 0',
+    alignItems: 'baseline',
+    b: {
+        fontSize: '18px',
+        fontWeight: 'bold'
+    },
+    ul: {
+        display: 'flex',
+    },
+    li: {
+        marginLeft: '30px',
+    },
+    a: {
+        color: '#cbcbcb', // TODO: add to the palette
+    },
+    img: {
+        marginRight: '10px',
+        verticalAlign: 'middle'
+    }
+});
+
+const Button = styled('button')(({ className }) => ({
+    background: 'none',
+    border: 0,
+    margin: 0,
+    padding: className === 'play' ? '0 20px' : 0,
+    ':focus': {
+        outline: 'none' // ಠ_ಠ
+    }
+}));
+
+const Wave = styled('svg')({
+    gridArea: 'wave',
+    alignSelf: 'stretch',
+    justifySelf: 'stretch'
 });
 
 export default class AudioPlayer extends Component {
@@ -39,10 +123,12 @@ export default class AudioPlayer extends Component {
             ready: false,
             playing: false,
             currentTime: 0,
+            iteration: 0,
             duration: NaN,
             volume: NaN,
-            interval: 1,
-            buckets: []
+            bins: NaN,
+            interval: NaN,
+            barHeight: NaN
         };
     }
     
@@ -62,7 +148,9 @@ export default class AudioPlayer extends Component {
         this.source.connect(this.analyser);
 
         const rect = this.canvas.getBoundingClientRect();
-        this.setState({
+        this.canvas.setAttribute('viewBox', `0 0 ${rect.width} ${rect.height}`);
+        this.setState({ 
+            bins: Math.floor(rect.width / 3),
             canvasH: rect.height,
             canvasW: rect.width
         });
@@ -70,7 +158,6 @@ export default class AudioPlayer extends Component {
     
     setCanvas = el => {
         this.canvas = el;
-        this.drawing = el.getContext("2d");
     }
 
     setAudio = el => {
@@ -78,9 +165,12 @@ export default class AudioPlayer extends Component {
     }
 
     ready = () => {
+        const duration = this.audio.duration;
+        const interval = duration / this.state.bins;
         this.setState({ 
             ready: true, 
-            duration: this.audio.duration,
+            duration,
+            interval,
             volume: this.audio.volume
         });
     }
@@ -97,18 +187,14 @@ export default class AudioPlayer extends Component {
         this.setState({ playing: !this.state.playing }, () => {
             if (this.state.playing) {
                 this.audio.play();
-                const interval = this.audio.duration / BUCKET_COUNT;
                 this.sample();
                 this.setState({ 
-                    interval,
-                    sampler: window.setInterval(this.sample, interval * 1000)
+                    sampler: window.setInterval(this.sample, this.state.interval * 1000)
                 });
-                window.requestAnimationFrame(this.draw);
             } else {
                 this.audio.pause();
                 window.clearInterval(this.state.sampler);
                 this.setState({ sampler: null });
-                window.cancelAnimationFrame(this.draw);
             }
         });
     }
@@ -130,35 +216,31 @@ export default class AudioPlayer extends Component {
     }
     
     sample = () => {
-        this.setState(() => {
-            this.analyser.getByteFrequencyData(this.dataArray);
-            const factor = Math.max(1, ...this.dataArray);
-            const mean = this.dataArray.reduce((res, x) => res + x, 0) / this.dataArray.length;
-            const minHeight = this.state.canvasH / 10;
-            const barHeight = minHeight + (mean / factor * (this.state.canvasH - minHeight));
-            this.state.buckets.push(barHeight);
-        });
+        this.analyser.getByteFrequencyData(this.dataArray);
+        const factor = Math.max(1, ...this.dataArray);
+        const mean = this.dataArray.reduce((res, x) => res + x, 0) / this.dataArray.length;
+        const minHeight = 5;
+        const barHeight = minHeight + Math.ceil(mean / factor * (this.state.canvasH - minHeight));
+        this.setState({
+            barHeight,
+            iteration: this.state.iteration + 1
+        }, this.draw);
     }
 
     draw = () => {
-        this.drawing.fillStyle = 'rgb(0, 0, 0)';
-        this.drawing.fillRect(0, 0, this.state.canvasW, this.state.canvasH);
+        const barWidth = 2;
+        const maxHeight = 90;
+        const barOffset = this.state.iteration * (barWidth + 1);
+        const playOffset = this.state.currentTime - this.state.interval * this.state.iteration;
 
-        const barWidth = (this.state.canvasW - BUCKET_COUNT + 1) / BUCKET_COUNT;
+        const rect = document.createElementNS(this.canvas.namespaceURI, 'rect');
+        rect.setAttribute('x', barOffset);
+        rect.setAttribute('y', maxHeight - this.state.barHeight);
+        rect.setAttribute('width', 2);
+        rect.setAttribute('height', this.state.barHeight);
+        rect.setAttribute('fill', pillarsHighlight.sport);
         
-        this.state.buckets.forEach((barHeight, i) => {
-            const barOffset = i * (barWidth + 1);
-            const playOffset = this.state.currentTime - this.state.interval * i;
-            const intensity = playOffset > this.state.interval
-                ? 255
-                : Math.max(30, 30 + Math.floor(playOffset * 225 / this.state.interval));
-            this.drawing.fillStyle = `rgb(${intensity},0,0)`;
-            this.drawing.fillRect(barOffset, this.state.canvasH - barHeight, barWidth, barHeight);
-        });
-
-        if (this.state.playing) {
-            window.setTimeout(() => window.requestAnimationFrame(this.draw), TICK);
-        }
+        this.canvas.appendChild(rect);
     }
 
     render({ 
@@ -174,18 +256,66 @@ export default class AudioPlayer extends Component {
                 <audio ref={this.setAudio} controls={controls} volume data-media-id={mediaId} preload="metadata">
                     <source src={sourceUrl} type="audio/mpeg" />
                 </audio>
-                <PlayButton onClick={this.play}>{playing ? "Pause" : "Play"}</PlayButton>
-                <button onClick={this.backward} disabled={!playing}>← Backward 15s</button>
-                <button onClick={this.forward} disabled={!playing}>Forward 15s →</button>
+                <Controls>
+                    <Button onClick={this.backward} disabled={!playing}>
+                        {playing ? (
+                            <img src="/static/icons/fast-backward-active.svg" />
+                        ) : (
+                            <img src="/static/icons/fast-backward.svg" />
+                        )}                        
+                    </Button>
+                    <Button className="play" onClick={this.play}>
+                        {playing ? (
+                            <img src="/static/icons/pause-btn.svg" />
+                        ) : (
+                            <img src="/static/icons/play-btn.svg" />
+                        )}
+                    </Button>
+                    <Button onClick={this.forward} disabled={!playing}>
+                        {playing ? (
+                            <img src="/static/icons/fast-forward-active.svg" />
+                        ) : (
+                            <img src="/static/icons/fast-forward.svg" />
+                        )}
+                    </Button>
+                </Controls>
                 <TimeSpan area="currentTime"><Time t={currentTime} /></TimeSpan>
                 <TimeSpan area="duration">{ready ? ( <Time t={duration} /> ) : ""}</TimeSpan>
                 <Track>
-                    <ProgressBar value={currentOffset} formattedValue={formatTime(currentOffset)} trackColour={css.track.trackColour} progressColour={css.track.progressColour} onChange={this.seek} />
+                    <ProgressBar value={currentOffset} formattedValue={formatTime(currentOffset)} trackColour={pillarsHighlight.sport} progressColour={palette.neutral[4]} onChange={this.seek} />
                 </Track>
                 {Number.isNaN(volume) ? "" : (
-                    <ProgressBar value={volume * 100} formattedValue={`Volume set to ${volume}`} trackColour={css.volume.trackColour} progressColour={css.volume.progressColour} onChange={this.updateVolume} />
+                    <Volume>
+                        <img src="/static/icons/volume.svg" />
+                        <ProgressBar value={volume * 100} formattedValue={`Volume set to ${volume}`} trackColour={pillarsHighlight.sport} progressColour={palette.neutral[4]} onChange={this.updateVolume} />
+                    </Volume>
                 )}
-                <Visualization innerRef={this.setCanvas} width={canvasW} height={canvasH}></Visualization>
+                <Wave innerRef={this.setCanvas} colour={pillarsHighlight.sport} />
+                <Download>
+                    <a href="#">
+                        Download MP3
+                        <img src="/static/icons/download.svg" />
+                    </a>
+                </Download>
+                <Links>
+                    <b>Subscribe for free</b>
+                    <ul>
+                        <li><a href="#">
+                            <img src="/static/icons/apple-podcast.jpg"
+                                srcset="/static/icons/apple-podcast@2x.jpg 2x,
+                                        /static/icons/apple-podcast@3x.jpg 3x"
+                                />
+                            Apple podcast
+                        </a></li>
+                        <li><a href="#">
+                            <img src="/static/icons/spotify.jpg"
+                                srcset="/static/icons/spotify@2x.jpg 2x,
+                                        /static/icons/spotify@3x.jpg 3x"
+                                />
+                            Spotify
+                        </a></li>
+                    </ul>
+                </Links>
             </AudioGrid>
         );
     }

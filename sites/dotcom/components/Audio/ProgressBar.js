@@ -7,12 +7,22 @@ const Progress = styled('div')(
   ({ backgroundColor }) => ({
     alignItems: 'stretch',
     backgroundColor,
+    backgroundClip: 'content-box',
     display: 'flex',
-    height: '6px',
+    height: '12px',
+    padding: '5px 0',
     flexDirection: 'row',
     justifyContent: 'flex-start',
     position: 'relative',
-    width: '100%'
+
+    '[role="slider"]': {
+      opacity: 0,
+      transition: 'opacity linear 200ms'
+    },
+
+    ':hover [role="slider"]': {
+      opacity: 1
+    }
   })
 );
 
