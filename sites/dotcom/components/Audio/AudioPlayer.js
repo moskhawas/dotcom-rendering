@@ -13,7 +13,7 @@ const AudioGrid = styled('div')({
     display: 'grid',
     gridTemplateColumns: "220px 1fr 1fr",
     gridTemplateRows: "1fr 90px 1fr 1fr",
-    gridTemplateAreas: '". currentTime duration" "controls wave wave" "volume track track" "download links links"',
+    gridTemplateAreas: '". currentTime duration" "controls wave wave" "volume . ." "download links links"',
     backgroundColor: palette.neutral[1],
     color: palette.neutral[5]
 });
@@ -34,10 +34,19 @@ const Controls = styled('div')({
     padding: '33px 0'
 });
 
+const WaveAndTrack = styled('div')({
+    gridArea: 'wave',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'stretch'
+})
+
 const Track = styled('div')({
-    gridArea: 'track',
-    alignSelf: 'center',
-    padding: '0 10px'
+    height: '12px'
+});
+
+const Wave = styled('svg')({
+    flex: 1,
 });
 
 const Volume = styled('div')({
@@ -110,34 +119,26 @@ const Button = styled('button')(({ className }) => ({
     }
 }));
 
-const Wave = styled('svg')({
-    gridArea: 'wave',
-    alignSelf: 'stretch',
-    justifySelf: 'stretch'
-});
-
 export default class AudioPlayer extends Component {
     constructor() {
         super();
         this.state = {
             ready: false,
+            started: false,
             playing: false,
             currentTime: 0,
             iteration: 0,
             duration: NaN,
             volume: NaN,
-            bins: NaN,
-            interval: NaN,
-            barHeight: NaN
+            bins: null,
+            interval: NaN
         };
     }
     
     componentDidMount() {
-        if (Number.isNaN(this.audio.duration)) {
-            this.audio.addEventListener('durationchange', this.ready, { once: true });
-        } else {
-            this.ready();
-        }
+        const rect = this.canvas.getBoundingClientRect();
+        this.canvas.setAttribute('viewBox', `0 0 ${rect.width} ${rect.height}`);
+        const nbins = Math.floor(rect.width / 3);
         this.audio.addEventListener('volumechange', this.onVolumeChange);
         this.audio.addEventListener('timeupdate', this.onTimeUpdate);
         this.context = new window.AudioContext();
@@ -147,12 +148,16 @@ export default class AudioPlayer extends Component {
         this.source = this.context.createMediaElementSource(this.audio);
         this.source.connect(this.analyser);
 
-        const rect = this.canvas.getBoundingClientRect();
-        this.canvas.setAttribute('viewBox', `0 0 ${rect.width} ${rect.height}`);
         this.setState({ 
-            bins: Math.floor(rect.width / 3),
+            bins: new Array(nbins).fill(0, 0, nbins).map(() => Math.floor(Math.random() * rect.height * .6)),
             canvasH: rect.height,
             canvasW: rect.width
+        }, () => {
+            if (Number.isNaN(this.audio.duration)) {
+                this.audio.addEventListener('durationchange', this.ready, { once: true });
+            } else {
+                this.ready();
+            }
         });
     }
     
@@ -166,7 +171,7 @@ export default class AudioPlayer extends Component {
 
     ready = () => {
         const duration = this.audio.duration;
-        const interval = duration / this.state.bins;
+        const interval = duration / this.state.bins.length;
         this.setState({ 
             ready: true, 
             duration,
@@ -184,7 +189,7 @@ export default class AudioPlayer extends Component {
     }
 
     play = () => {
-        this.setState({ playing: !this.state.playing }, () => {
+        this.setState({ started: true, playing: !this.state.playing }, () => {
             if (this.state.playing) {
                 this.audio.play();
                 this.sample();
@@ -221,34 +226,23 @@ export default class AudioPlayer extends Component {
         const mean = this.dataArray.reduce((res, x) => res + x, 0) / this.dataArray.length;
         const minHeight = 5;
         const barHeight = minHeight + Math.ceil(mean / factor * (this.state.canvasH - minHeight));
+        const bins = this.state.bins;
+        bins[this.state.iteration] = barHeight;
         this.setState({
-            barHeight,
+            bins,
             iteration: this.state.iteration + 1
-        }, this.draw);
-    }
-
-    draw = () => {
-        const barWidth = 2;
-        const maxHeight = 90;
-        const barOffset = this.state.iteration * (barWidth + 1);
-        const playOffset = this.state.currentTime - this.state.interval * this.state.iteration;
-
-        const rect = document.createElementNS(this.canvas.namespaceURI, 'rect');
-        rect.setAttribute('x', barOffset);
-        rect.setAttribute('y', maxHeight - this.state.barHeight);
-        rect.setAttribute('width', 2);
-        rect.setAttribute('height', this.state.barHeight);
-        rect.setAttribute('fill', pillarsHighlight.sport);
-        
-        this.canvas.appendChild(rect);
+        });
     }
 
     render({ 
         sourceUrl, 
         mediaId,
         controls,
-        css
-    }, { ready, playing, currentTime, duration, volume, canvasW, canvasH }) {
+        css,
+        barWidth,
+        neutralColor,
+        highlightColor
+    }, { ready, started, playing, currentTime, duration, volume, canvasH, bins, iteration }) {
         const currentOffset = ready ? currentTime / duration * 100 : 0;
 
         return (
@@ -281,16 +275,26 @@ export default class AudioPlayer extends Component {
                 </Controls>
                 <TimeSpan area="currentTime"><Time t={currentTime} /></TimeSpan>
                 <TimeSpan area="duration">{ready ? ( <Time t={duration} /> ) : ""}</TimeSpan>
-                <Track>
-                    <ProgressBar value={currentOffset} formattedValue={formatTime(currentOffset)} trackColour={pillarsHighlight.sport} progressColour={palette.neutral[4]} onChange={this.seek} />
-                </Track>
+                <WaveAndTrack>
+                    <Wave innerRef={this.setCanvas} colour={pillarsHighlight.sport}>
+                        {ready ? bins.map((barHeight, i) => i < iteration ? (
+                            <rect x={i * (barWidth + 1)} y={canvasH - barHeight} width={barWidth} height={barHeight} fill={highlightColor} />
+                        ) : i < iteration + 1 ? (
+                            <rect x={i * (barWidth + 1)} y={canvasH} width={barWidth} height={0} fill={neutralColor} />
+                        ) : (
+                            <rect x={i * (barWidth + 1)} y={canvasH - barHeight} width={barWidth} height={barHeight} fill={neutralColor} />
+                        )) : ""}                    
+                    </Wave>
+                    <Track>
+                        <ProgressBar value={currentOffset} formattedValue={formatTime(currentOffset)} barHeight={4} trackColour={pillarsHighlight.sport} progressColour={palette.neutral[4]} onChange={this.seek} />
+                    </Track>
+                </WaveAndTrack>
                 {Number.isNaN(volume) ? "" : (
                     <Volume>
                         <img src="/static/icons/volume.svg" />
-                        <ProgressBar value={volume * 100} formattedValue={`Volume set to ${volume}`} trackColour={pillarsHighlight.sport} progressColour={palette.neutral[4]} onChange={this.updateVolume} />
+                        <ProgressBar value={volume * 100} formattedValue={`Volume set to ${volume}`} barHeight={2} trackColour={pillarsHighlight.sport} progressColour={palette.neutral[4]} onChange={this.updateVolume} />
                     </Volume>
                 )}
-                <Wave innerRef={this.setCanvas} colour={pillarsHighlight.sport} />
                 <Download>
                     <a href="#">
                         Download MP3

@@ -4,13 +4,13 @@ import AuralAid from './AuralAid';
 import Slider from './Slider';
 
 const Progress = styled('div')(
-  ({ backgroundColor }) => ({
+  ({ backgroundColor, height }) => ({
     alignItems: 'stretch',
     backgroundColor,
     backgroundClip: 'content-box',
     display: 'flex',
-    height: '12px',
-    padding: '5px 0',
+    height: `${height + 4 * 2}px`,
+    padding: '4px 0',
     flexDirection: 'row',
     justifyContent: 'flex-start',
     position: 'relative',
@@ -40,6 +40,7 @@ export default class ProgressBar extends Component {
     super(props);
     this.onChange = props.onChange;
     this.state = {
+      dragging: false,
       value: props.value,
       position: 0,
       width: 0
@@ -59,12 +60,13 @@ export default class ProgressBar extends Component {
   start = e => {
     const position = e.clientX - this.state.left;
     const value = position * 100 / this.state.width;
-    this.setState({ position, value });
+    this.setState({ dragging: true, position, value });
     window.addEventListener('mousemove', this.update);
     window.addEventListener('mouseup', this.stop, { once: true });
   }
   
   stop = () => {
+    this.setState({ dragging: false })
     this.onChange(this.state.value);
     window.removeEventListener('mousemove', this.update);
   }
@@ -75,14 +77,15 @@ export default class ProgressBar extends Component {
     this.setState({ value, position });
   }
 
-  render({ formattedValue, progressColour, trackColour }, { value, position, width }) {
+  render({ formattedValue, progressColour, trackColour, value, barHeight }, { dragging, draggingValue, position, width }) {
     return (
       <Progress 
         innerRef={this.getElement} 
         backgroundColor={progressColour}
+        height={barHeight}
         onMouseDown={this.start}
         role="progressbar" 
-        aria-valuenow={value} 
+        aria-valuenow={dragging ? draggingValue : value} 
         aria-valuemin="0" 
         aria-valuemax="100"
         >

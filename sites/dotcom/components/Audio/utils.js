@@ -1,6 +1,7 @@
 export {
   format,
-  formatTime
+  formatTime,
+  range
 };
 
 const format = (t: number) =>
@@ -12,4 +13,11 @@ const formatTime = (t: number) => {
   const hour = Math.floor(t / 3600);
   return hour === 0 ? `${format(minute)}:${format(second)}` :
     `${format(hour)}:${format(minute)}:${format(second)}`;
+}
+
+const range = (min, max) => {
+  const ret = [];
+  let x = min;
+  while (x < max) ret.push(x), x +=1;
+  return ret;
 }
