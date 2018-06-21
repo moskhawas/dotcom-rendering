@@ -4,14 +4,13 @@ import { styled, Component } from '@guardian/guui';
 
 const Scrubber = styled('div')(({ left }) => ({
   backgroundColor: '#ffffff',
-  border: '2px solid #000000',
   borderRadius: '100%',
-  height: '12px',
+  height: '14px',
   left: `${left}px`,
   position: 'absolute',
   top: '50%', 
   transform: 'translate(-50%, -50%)',
-  width: '12px',
+  width: '14px',
 }));
 
 export default function Slider({ min, max, value }) {

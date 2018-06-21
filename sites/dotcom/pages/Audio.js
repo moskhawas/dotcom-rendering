@@ -19,9 +19,9 @@ const Headline = styled('h1')({
     fontSize: 34,
     lineHeight: 1.1,
     fontWeight: 700,
-    color: palette.red.dark,
     paddingBottom: 36,
     paddingTop: 3,
+    color: '#02b2ff'
 });
 
 const Body = styled('section')({

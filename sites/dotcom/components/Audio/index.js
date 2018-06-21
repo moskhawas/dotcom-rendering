@@ -2,6 +2,7 @@
 
 import { Component } from  '@guardian/guui';
 import Player from './AudioPlayer';
+import { pillarsHighlight } from '@guardian/pasteup/palette';
 
 export default class AudioPage extends Component {
   constructor(props) {
@@ -10,7 +11,8 @@ export default class AudioPage extends Component {
 
   render() {
     return (
-      <Player sourceUrl={sourceUrl} duration={duration} mediaId={mediaId} css={cssProps} />
+      <Player sourceUrl={sourceUrl} duration={duration} mediaId={mediaId} css={cssProps} 
+        barWidth={2} neutralColor="#767676" highlightColor={pillarsHighlight.sport} />
     )
   }
 }

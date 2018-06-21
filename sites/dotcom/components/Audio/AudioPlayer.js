@@ -1,6 +1,7 @@
 // @flow
 import { Component, styled } from '@guardian/guui';
 import { pillarsHighlight } from '@guardian/pasteup/palette';
+import { tablet, leftCol, wide } from '@guardian/pasteup/breakpoints';
 
 import { formatTime } from './utils';
 
@@ -11,19 +12,38 @@ import palette from '@guardian/pasteup/palette';
 const AudioGrid = styled('div')({
     borderTop: '1px solid #767676',
     display: 'grid',
-    gridTemplateColumns: "220px 1fr 1fr",
-    gridTemplateRows: "1fr 90px 1fr 1fr",
-    gridTemplateAreas: '". currentTime duration" "controls wave wave" "volume . ." "download links links"',
     backgroundColor: palette.neutral[1],
-    color: palette.neutral[5]
+    color: palette.neutral[5],
+    gridTemplateColumns: "6fr 4fr",
+    gridTemplateRows: "30px 90px 100px 50px 1fr",
+    gridTemplateAreas: '"currentTime duration" "wave wave" "controls controls" "volume download" "links links"',
+
+    [tablet]: {
+        gridTemplateColumns: "150px 1fr 1fr",
+        gridTemplateRows: "30px 90px 90px 1fr 1fr",
+        gridTemplateAreas: '"currentTime currentTime duration" "wave wave wave" "controls controls controls" "volume volume volume" "download links links"',
+    },
+
+    [leftCol]: {
+        gridTemplateRows: "30px 90px 1fr 1fr",
+        gridTemplateAreas: '". currentTime duration" "controls wave wave" "volume . ." "download links links"',
+    },
+
+    [wide]: {
+        gridTemplateColumns: "230px 1fr 1fr"
+    }
 });
 
 const TimeSpan = styled('span')(({ area }) => ({
     [area === 'currentTime' ? 'borderLeft' : 'borderRight']: '1px solid #767676',
-    [area === 'currentTime' ? 'paddingLeft' : 'paddingRight']: '4px',
+    [area === 'currentTime' ? 'paddingLeft' : 'paddingRight']: '10px',
     gridArea: area,
     paddingTop: '7px',
-    textAlign: area === 'duration' ? 'right' : 'left'
+    fontFamily: 'Guardian Text Sans Web',
+    fontWeight: 'bold',
+    display: 'flex',
+    alignItems: 'flex-end',
+    justifyContent: area === 'duration' ? 'flex-end' : 'flex-start',
 }));
 
 const Controls = styled('div')({
@@ -42,7 +62,9 @@ const WaveAndTrack = styled('div')({
 })
 
 const Track = styled('div')({
-    height: '12px'
+    height: '12px',
+    position: 'relative',
+    top: '-4px'
 });
 
 const Wave = styled('svg')({
@@ -53,20 +75,36 @@ const Volume = styled('div')({
     gridArea: 'volume',
     display: 'flex',
     alignItems: 'center',
-    padding: '0 20px',
+    padding: '0 10px',
+    borderTop: '1px solid #797979',
+    borderRight: '1px solid #797979',
+    [tablet]: {
+        borderRight: 'none'
+    },
+    [leftCol]: {
+        border: 'none'
+    },
     '> img': {
         marginRight: '6px'
     },
     'div[role="progressbar"]': {
         flex: 1
-    }
+    },
 });
 
 const Download = styled('div')({
     borderTop: '1px solid #767676',
     gridArea: 'download',
-    paddingLeft: '20px',
-    paddingTop: '8px',
+    fontFamily: 'Guardian Text Sans Web',
+    fontWeight: 'bold',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    [tablet]: {
+        justifyContent: 'flex-start',
+        paddingLeft: '10px',
+        paddingTop: '8px',
+    },
     a: {
         color: '#cbcbcb', // TODO: add to the palette
         border: '1px solid rgba(118, 118, 118, 0.7)',
@@ -75,33 +113,51 @@ const Download = styled('div')({
         alignItems: 'center',
         padding: '3px 12px',
         fontSize: '12px',
-        textDecoration: 'none'
+        textDecoration: 'none',
+
+        ':hover': {
+            borderColor: '#ffffff'
+        }
     },
     img: {
         height: '18px',
-        width: '18px'
+        width: '18px',
+        marginLeft: '6px'
     }
 })
 
 const Links = styled('div')({
     borderTop: '1px solid #767676',
-    borderLeft: '1px solid #767676',
     gridArea: 'links',
+    padding: '10px 10px 0',
+    fontWeight: 'bold',
     display: 'flex',
-    padding: '10px 4px 0',
-    alignItems: 'baseline',
+    flexDirection: 'column',
+    [tablet]: {
+        borderLeft: '1px solid #767676',
+        alignItems: 'baseline',
+        flexDirection: 'row',
+        paddingTop: 0,
+        ul: {
+            display: 'flex',
+        },
+        li: {
+            marginLeft: '30px',
+        },
+    },
     b: {
         fontSize: '18px',
-        fontWeight: 'bold'
+        fontFamily: 'GH Guardian Headline'
     },
     ul: {
-        display: 'flex',
-    },
-    li: {
-        marginLeft: '30px',
+        fontFamily: 'Guardian Text Sans Web',
+        fontSize: '15px'
     },
     a: {
         color: '#cbcbcb', // TODO: add to the palette
+    },
+    li: {
+        marginTop: '12px'
     },
     img: {
         marginRight: '10px',
@@ -109,14 +165,36 @@ const Links = styled('div')({
     }
 });
 
-const Button = styled('button')(({ className }) => ({
+const Button = styled('button')(({ isPlay }) => ({
     background: 'none',
     border: 0,
     margin: 0,
-    padding: className === 'play' ? '0 20px' : 0,
+    padding: isPlay ? '0 20px' : 0,
     ':focus': {
         outline: 'none' // ಠ_ಠ
-    }
+    },
+
+    padding: isPlay ? '0 45px' : 0,
+    img: {
+        width: isPlay ? '70px' : '26px',
+        height: isPlay ? '70px' : '26px'
+    },
+
+    [leftCol]: {
+        padding: isPlay ? '0 12px' : 0,
+        img: {
+            width: isPlay ? '60px' : '24px',
+            height: isPlay ? '60px' : '24px'
+        }
+    },
+    
+    [wide]: {
+        padding: isPlay ? '0 20px' : 0,
+        img: {
+            width: isPlay ? '78px' : '26px',
+            height: isPlay ? '78px' : '26px'
+        }
+    },
 }));
 
 export default class AudioPlayer extends Component {
@@ -218,6 +296,7 @@ export default class AudioPlayer extends Component {
 
     seek = v => {
         this.audio.currentTime = this.audio.duration * v / 100;
+        this.setState({ iteration: Math.floor(this.state.bins.length * v / 100) - 1 });
     }
     
     sample = () => {
@@ -251,21 +330,21 @@ export default class AudioPlayer extends Component {
                     <source src={sourceUrl} type="audio/mpeg" />
                 </audio>
                 <Controls>
-                    <Button onClick={this.backward} disabled={!playing}>
+                    <Button isPlay={false} onClick={this.backward} disabled={!playing}>
                         {playing ? (
                             <img src="/static/icons/fast-backward-active.svg" />
                         ) : (
                             <img src="/static/icons/fast-backward.svg" />
                         )}                        
                     </Button>
-                    <Button className="play" onClick={this.play}>
+                    <Button isPlay={true} onClick={this.play}>
                         {playing ? (
                             <img src="/static/icons/pause-btn.svg" />
                         ) : (
                             <img src="/static/icons/play-btn.svg" />
                         )}
                     </Button>
-                    <Button onClick={this.forward} disabled={!playing}>
+                    <Button isPlay={false} onClick={this.forward} disabled={!playing}>
                         {playing ? (
                             <img src="/static/icons/fast-forward-active.svg" />
                         ) : (
@@ -305,16 +384,16 @@ export default class AudioPlayer extends Component {
                     <b>Subscribe for free</b>
                     <ul>
                         <li><a href="#">
-                            <img src="/static/icons/apple-podcast.jpg"
-                                srcset="/static/icons/apple-podcast@2x.jpg 2x,
-                                        /static/icons/apple-podcast@3x.jpg 3x"
+                            <img src="/static/icons/apple-podcast.png"
+                                srcset="/static/icons/apple-podcast@2x.png 2x,
+                                        /static/icons/apple-podcast@3x.png 3x"
                                 />
                             Apple podcast
                         </a></li>
                         <li><a href="#">
-                            <img src="/static/icons/spotify.jpg"
-                                srcset="/static/icons/spotify@2x.jpg 2x,
-                                        /static/icons/spotify@3x.jpg 3x"
+                            <img src="/static/icons/spotify.png"
+                                srcset="/static/icons/spotify@2x.png 2x,
+                                        /static/icons/spotify@3x.png 3x"
                                 />
                             Spotify
                         </a></li>
