@@ -21,7 +21,7 @@ const guardianLines = css`
     margin-top: 0.75rem;
 `;
 
-const linkStyle = (pillar: Pillar) => css`
+const tagLinkStyle = (pillar: Pillar) => css`
     position: relative;
     padding-left: 0.3rem;
     padding-right: 0.35rem;
@@ -29,6 +29,7 @@ const linkStyle = (pillar: Pillar) => css`
     color: ${pillarPalette[pillar].main};
     font-family: ${serif.body};
     font-size: 15px;
+    line-height: 1.375rem;
 
     :after {
         content: '/';
@@ -41,7 +42,7 @@ const linkStyle = (pillar: Pillar) => css`
     }
 `;
 
-const itemStyle = css`
+const tagItemStyle = css`
     display: inline-block;
 
     :last-of-type > a::after {
@@ -49,31 +50,95 @@ const itemStyle = css`
     }
 `;
 
-const listStyle = css`
-    display: inline;
+const tagListStyle = css`
+    display: inline-block;
     margin-left: -0.35rem;
+`;
+
+const tagsWrapper = css`
+    padding-top: 0.375rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 0.0625rem solid #dcdcdc;
+    margin-bottom: 0.375rem;
+`;
+
+const labelLinkStyle = (pillar: Pillar) => css`
+    position: relative;
+    display: block;
+    padding-left: 0.3em;
+    padding-right: 0.35em;
+    font-weight: 500;
+    line-height: 1.375rem;
+    color: ${pillarPalette[pillar].main};
+    font-family: ${serif.body};
+    text-decoration: none;
+
+    :after {
+        content: '/';
+        font-size: 1em;
+        position: absolute;
+        pointer-events: none;
+        top: 0;
+        right: -0.19em;
+        color: #767676;
+    }
+`;
+
+const labelItemStyle = css`
+    display: inline-block;
+
+    :last-of-type > a::after {
+        content: '';
+    }
+`;
+
+const labelListStyle = css`
+    margin-left: -0.35rem;
+`;
+
+const topicStyle = css`
+    font-size: 13px;
+    line-height: 1rem;
+    color: #767676;
+    display: block;
+    margin-bottom: -0.1875rem;
+    font-family: ${serif.body};
 `;
 
 const Submeta: React.SFC<{
     pillar: Pillar;
-    tags: TagType[];
-}> = ({ pillar, tags }) => {
-    const keywords = tags.filter(tag => tag.type === 'Keyword');
-
-    const links = keywords.map(tag => (
-        <li className={itemStyle} key={tag.id}>
+    sections: SimpleLinkType[];
+    keywords: SimpleLinkType[];
+}> = ({ pillar, sections, keywords }) => {
+    const tagLinks = keywords.map(tag => (
+        <li className={tagItemStyle} key={tag.url}>
             <a
-                className={linkStyle(pillar)}
-                href={`https://www.theguardian.com/${tag.id}`}
+                className={tagLinkStyle(pillar)}
+                href={`https://www.theguardian.com/${tag.url}`}
             >
                 {tag.title}
             </a>
         </li>
     ));
 
+    const labels = sections.map(label => (
+        <li className={labelItemStyle} key={label.url}>
+            <a
+                className={labelLinkStyle(pillar)}
+                href={`https://www.theguardian.com/${label.url}`}
+            >
+                {label.title}
+            </a>
+        </li>
+    ));
+
     return (
         <div className={guardianLines}>
-            <ul className={listStyle}>{links}</ul>
+            <span className={topicStyle}>Topics</span>
+            <ul className={labelListStyle}>{labels}</ul>
+            <div className={tagsWrapper}>
+                <ul className={tagListStyle}>{tagLinks}</ul>
+            </div>
         </div>
     );
 };
