@@ -536,7 +536,17 @@ const ArticleBody: React.SFC<{
                         </div>
                     )}
                 <div className={headline}>
-                    <h1 className={headerStyle}>{CAPI.headline}</h1>
+                    {/* <h1 className={headerStyle}>{CAPI.headline}</h1> */}
+                    <my-list>
+                        <template id="list-template">
+                            <h1>My List</h1>
+                            <ul gap-role="list" gap-src="toDoList">
+                                <template id="list-item-template">
+                                    <li gap-role="listItem" gap-src="id" />
+                                </template>
+                            </ul>
+                        </template>
+                    </my-list>
                     <div
                         className={cx(standfirst, standfirstLinks[CAPI.pillar])}
                         dangerouslySetInnerHTML={{
