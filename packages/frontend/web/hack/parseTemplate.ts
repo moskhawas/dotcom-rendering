@@ -3,22 +3,22 @@ export const parseTemplate: (
     data: any,
 ) => DocumentFragment = (childNodes, data = {}) => {
     return [...childNodes].reduce((acc, childNode) => {
-        const myNode = childNode.cloneNode(true);
         const gapRole = childNode.getAttribute('gap-role');
         const src = childNode.getAttribute('gap-src');
 
         if (gapRole && src) {
             switch (gapRole) {
                 case 'list':
-                    const template = myNode.querySelector(
+                    const template = childNode.querySelector(
                         '#list-item-template',
                     );
+                    const templateContent = template.content;
 
                     if (template) {
                         data[src].forEach(dataItem => {
-                            myNode.appendChild(
+                            childNode.appendChild(
                                 parseTemplate(
-                                    template.content.childNodes,
+                                    templateContent.cloneNode(true).childNodes,
                                     dataItem,
                                 ),
                             );
@@ -27,13 +27,13 @@ export const parseTemplate: (
 
                     break;
                 case 'listItem':
-                    myNode.innerHTML = data[src];
+                    childNode.innerHTML = data[src];
 
                     break;
             }
         }
 
-        acc.appendChild(myNode);
+        acc.appendChild(childNode);
 
         return acc;
     }, document.createDocumentFragment());

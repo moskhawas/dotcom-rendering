@@ -16,12 +16,15 @@ class MyList extends HTMLElement {
         };
 
         const template = this.querySelector('#list-template');
+        const templateContent = template.content;
+
+        templateContent.cloneNode(true).childNodes
 
         if (template) {
             this.attachShadow({
                 mode: 'open',
             }).appendChild(
-                parseTemplate(template.content.childNodes, data),
+                parseTemplate(templateContent.cloneNode(true).childNodes, data),
             );
         }
     }
