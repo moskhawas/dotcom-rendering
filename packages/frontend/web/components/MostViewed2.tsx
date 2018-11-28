@@ -243,13 +243,44 @@ interface Props {
     endpoint: string;
 }
 
-const template = `{{ #. }}
-    <div>{{ heading }}</div>
-{{ /.}}`;
+const template = `<div class=${listContainer}>
+    <ul class=${tabsContainer} role="tablist">
+        {{ #. }}
+        <li class="${listTab}" data-xxx="{{ index }}" role="tab">
+            <button class="${tabButton}">
+                <span class="${css`
+                    ${screenReaderOnly};
+                `}">
+                    Most viewed{' '}
+                </span> {{ heading }}
+            </button>
+        </li>
+        {{ /.}}
+    </ul>
+    {{ #. }}
+    <ol class=${list} role="tabpanel">
+        {{ #trails }}
+        <li class="${listItem}">
+            <span class="${bigNumber}">
+                    </span>
+            <h2 className={headlineHeader}>
+                        <a
+                            class="${headlineLink}"
+                            href="{{ url }}"
+                        >
+                            {{ linkText }}
+                        </a>
+                    </h2>
+        </li>
+        {{ /trails }}
+    </ol>
+    {{ /.}}
+</div>`;
 
 // tslint:disable:react-no-dangerous-html
 export const MostViewed: React.SFC<Props> = ({ endpoint }) => (
-    <div>
+    <div className={container}>
+        <h2 className={heading}>Most viewed</h2>
         <gap-list data-src={endpoint}>
             <template>
                 <div dangerouslySetInnerHTML={{ __html: template }} />
