@@ -4,7 +4,7 @@ import { css } from 'react-emotion';
 import { palette } from '@guardian/pasteup/palette';
 import { desktop, mobileLandscape } from '@guardian/pasteup/breakpoints';
 
-import { MostViewed } from '@frontend/web/components/MostViewed';
+import { MostViewed } from '@frontend/web/components/MostViewed2';
 import Header from '@frontend/web/components/Header';
 import Footer from '@frontend/web/components/Footer';
 import ArticleBody from '@frontend/web/components/ArticleBody';
@@ -76,7 +76,13 @@ const Article: React.SFC<{
                     <ArticleBody CAPI={data.CAPI} config={data.config} />
                     <div className={secondaryColumn} />
                 </article>
-                <MostViewed sectionName={data.CAPI.sectionName} />
+                <MostViewed
+                    endpoint={`https://api.nextgen.guardianapps.co.uk/most-read/${
+                        data.CAPI.sectionName
+                    }.json?guui`}
+                />
+
+                {/* <MostViewed sectionName={data.CAPI.sectionName} /> */}
             </Container>
         </main>
 

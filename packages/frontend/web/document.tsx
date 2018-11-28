@@ -58,7 +58,14 @@ export default ({ data }: Props) => {
     const vendorJS = assets.dist('vendor.js');
     const polyfillIO =
         'https://assets.guim.co.uk/polyfill.io/v2/polyfill.min.js?rum=0&features=es6,es7,es2017,default-3.6,HTMLPictureElement,IntersectionObserver,IntersectionObserverEntry&flags=gated&callback=guardianPolyfilled&unknown=polyfill';
-    const priorityScripts = [polyfillIO, vendorJS, bundleJS];
+
+    const gapCore =
+        'https://s3-eu-west-1.amazonaws.com/com-gu-gap/v0/gap-core.js';
+
+    const gapList =
+        'https://s3-eu-west-1.amazonaws.com/com-gu-gap/v0/gap-list.js';
+
+    const priorityScripts = [polyfillIO, gapCore, gapList];
 
     return htmlTemplate({
         priorityScripts,

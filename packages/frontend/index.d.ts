@@ -150,3 +150,11 @@ declare namespace JSX {
         template: any;
     }
 }
+
+/* GAP types */
+// tslint:disable-next-line no-namespace
+declare namespace JSX {
+    interface IntrinsicElements {
+        'gap-list': any;
+    }
+}
