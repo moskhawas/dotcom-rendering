@@ -1,0 +1,74 @@
+#!/usr/bin/env node
+
+const fs = require('fs');
+const { promisify } = require('util');
+const execa = require('execa');
+const chalk = require('chalk');
+const getChangedFiles = require('./get-changed-files');
+
+const writeFile = promisify(fs.writeFile);
+
+const confirmIfMasterMessage = `${chalk.red(
+    `${chalk.inverse(
+        'You are about to push master!'
+    )}\nIs that what you intended?`
+)} [y/N]`;
+const confirmIfMaster = execa
+    .shell(
+        `
+        protected_branch='master'
+        current_branch=$(git symbolic-ref HEAD | sed -e 's,.*/\\(.*\\),\\1,')
+        if [ $protected_branch = $current_branch ]
+        then
+            read -p "${confirmIfMasterMessage}" -n 1 -r < /dev/tty
+            echo
+            if echo $REPLY | grep -E '^[Yy]$' > /dev/null
+            then
+                exit 0 # push will execute
+            fi
+            exit 1 # push will not execute
+        else
+            exit 0 # push will execute
+        fi
+        `,
+        {
+            stdio: 'inherit',
+        }
+    )
+    .catch(() => Promise.reject(new Error('Ok, stopping 😉')));
+
+const validate = () =>
+    execa('make', ['lint', 'tsc'], {
+        stdio: 'inherit',
+    });
+
+const checkYarnLock = changed => {
+    if (
+        changed.some(file => file === 'package.json') &&
+        !changed.some(file => file === 'yarn.lock')
+    ) {
+        return Promise.reject(
+            new Error(
+                `${chalk.red(
+                    `${chalk.underline(
+                        'package.json'
+                    )} has changed but ${chalk.underline(
+                        'yarn.lock'
+                    )} is not included in this commit.`
+                )}\n${chalk.dim(
+                    `If this is intentional, commit this change with --no-verify.`
+                )}`
+            )
+        );
+    }
+    return changed;
+};
+
+confirmIfMaster
+    .then(validate)
+    .then(getChangedFiles)
+    .then(checkYarnLock)
+    .catch(e => {
+        console.log(`\n${e}\n`);
+        process.exit(1);
+    });
