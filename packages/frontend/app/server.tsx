@@ -10,6 +10,7 @@ import {
 import document from '@frontend/web/document';
 import AMPDocument from '@frontend/amp/document';
 import AMPArticle from '@frontend/amp/pages/Article';
+import AMPSwg from '@frontend/amp/components/lib/AMPSwg';
 import { dist, root, port } from '@root/scripts/frontend/config';
 import { log, warn } from '@root/scripts/env/log';
 
@@ -51,6 +52,7 @@ const renderAMPArticle = ({ body }: express.Request, res: express.Response) => {
                     config={extractConfig(body)}
                 />
             ),
+            ampSwg: AMPSwg,
         });
 
         res.status(200).send(resp);

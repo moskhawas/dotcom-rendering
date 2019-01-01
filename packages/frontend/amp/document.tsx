@@ -11,9 +11,11 @@ interface RenderToStringResult {
 export default ({
     body,
     scripts,
+    ampSwg: ampSwg,
 }: {
     body: React.ReactElement<any>;
     scripts: string[];
+    ampSwg: string;
 }) => {
     const { html, css }: RenderToStringResult = extractCritical(
         renderToString(body),
@@ -33,7 +35,8 @@ export default ({
     <script async custom-element="amp-sidebar" src="https://cdn.ampproject.org/v0/amp-sidebar-0.1.js"></script>
     <script async custom-element="amp-accordion" src="https://cdn.ampproject.org/v0/amp-accordion-0.1.js"></script>
     <script async custom-element="amp-list" src="https://cdn.ampproject.org/v0/amp-list-0.1.js"></script>
-
+    <!-- Move SWG here-->
+    ${ampSwg}
     <style amp-custom>${fontsCss}${resetCSS}${css}</style>
     </head>
     <body>
