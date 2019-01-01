@@ -5,6 +5,7 @@ import { screenReaderOnly } from '@guardian/pasteup/mixins';
 import { serif } from '@guardian/pasteup/fonts';
 import { pillarPalette } from '../../lib/pillars';
 import Sidebar from './Sidebar';
+import SwgBtn from './Swg';
 import ArrowRight from '@guardian/pasteup/icons/arrow-right.svg';
 import { palette } from '@guardian/pasteup/palette';
 
@@ -192,6 +193,8 @@ const Header: React.SFC<{
                     <ArrowRight />
                 </a>
             </div>
+
+            <SwgBtn />
 
             <a className={logoStyles} href="/">
                 <span
