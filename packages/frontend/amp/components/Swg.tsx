@@ -6,7 +6,8 @@ const SwgBtn = () => {
             <button
                 subscriptions-action="subscribe"
                 subscriptions-service="subscribe.google.com"
-                subscriptions-display="NOT data.isLoggedIn"
+                // subscriptions-service="local"
+                subscriptions-display="NOT data.loggedIn AND data.showSwg"
             >
                 Subscribe
             </button>
