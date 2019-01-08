@@ -48,7 +48,7 @@ export const Elements: React.SFC<{
                     return <SoundcloudBlockComponent element={element} />;
                 default:
                     // tslint:disable-next-line:no-console
-                    console.log('Unsupported Element', JSON.stringify(element));
+                    // console.log('Unsupported Element', JSON.stringify(element));
                     return null;
             }
         })
