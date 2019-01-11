@@ -11,11 +11,11 @@ src="https://cdn.ampproject.org/v0/amp-subscriptions-0.1.js"></script>
 {
   "services": [
     {
-     "authorizationUrl": "http://localhost:5000/oauth",
-     "pingbackUrl": "http://localhost:5000/pingback",
+     "authorizationUrl": "https://swg.theguardian.com/oauth",
+     "pingbackUrl": "https://swg.theguardian.com/pingback",
      "actions":{
-       "login": "http://localhost:5000/login",
-       "subscribe": "http://localhost:5000/subscribe#viewerUrl=https://google.com"
+       "login": "https://swg.theguardian.com/login",
+       "subscribe": "https://swg.theguardian.com/subscribe#viewerUrl=https://google.com"
      }
    },
     {
