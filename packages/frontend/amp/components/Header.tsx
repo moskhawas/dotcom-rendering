@@ -18,17 +18,22 @@ const row = css`
     position: relative;
 `;
 
-const supportStyles = css`
+const supportContainerStyles = css`
     align-self: flex-start;
     position: relative;
-    margin-left: 20px;
-    margin-top: 20px;
+    margin-left: 10px;
+    margin-top: 10px;
+    min-width: 150px;
+`;
+
+const supportStyles = css`
     background-color: ${palette.highlight.main};
     border-radius: 20px;
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 0 15px;
+    margin-bottom: 10px;
     min-height: 30px;
 `;
 
@@ -182,14 +187,15 @@ const Header: React.FunctionComponent<{
 }> = ({ nav, activePillar, config }) => (
     <header className={headerStyles}>
         <div className={row}>
-            <div className={supportStyles}>
-                <a className={supportLinkStyles} href={supportLink}>
-                    Support us
-                    <ArrowRight />
-                </a>
+            <div className={supportContainerStyles}>
+                <div className={supportStyles}>
+                    <a className={supportLinkStyles} href={supportLink}>
+                        Support us
+                        <ArrowRight />
+                    </a>
+                </div>
+                {config.switches.subscribeWithGoogle && <AmpSubscriptionGoogle />}
             </div>
-
-            {config.switches.subscribeWithGoogle && <AmpSubscriptionGoogle />}
 
             <a className={logoStyles} href="/">
                 <span
