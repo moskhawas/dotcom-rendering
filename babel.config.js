@@ -31,10 +31,10 @@ module.exports = {
     ],
     env: {
         production: {
-            plugins: [['emotion', { sourceMap: false }]],
+            presets: [['@emotion/babel-preset-css-prop', { sourceMap: false }]],
         },
         development: {
-            plugins: [['emotion', { sourceMap: true }]],
+            presets: [['@emotion/babel-preset-css-prop', { sourceMap: true }]],
         },
     },
 };
