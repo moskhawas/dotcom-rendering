@@ -1,6 +1,6 @@
 import React from 'react';
-import { css } from 'emotion';
 import { textSans, body } from '@guardian/pasteup/typography';
+import { css } from '@emotion/core';
 import { palette } from '@guardian/pasteup/palette';
 import { InnerContainer } from './InnerContainer';
 import { Link, footerLinksNew } from '@frontend/lib/footer-links';
@@ -128,7 +128,7 @@ const FooterLinks: React.FC<{
     const linkGroups = links.map(linkGroup => {
         const ls = linkGroup.map(l => (
             <li key={l.url}>
-                <a className={footerLink} href={l.url}>
+                <a css={footerLink} href={l.url}>
                     {l.title}
                 </a>
             </li>
@@ -136,17 +136,17 @@ const FooterLinks: React.FC<{
         const key = linkGroup.reduce((acc, { title }) => `acc-${title}`, '');
 
         return (
-            <ul key={key} className={footerListBlock}>
+            <ul key={key} css={footerListBlock}>
                 {ls}
             </ul>
         );
     });
 
     return (
-        <div className={footerList}>
+        <div css={footerList}>
             {linkGroups}
-            <div key="rrblock" className={footerListBlock}>
-                <div className={supportLink}>Support The&nbsp;Guardian</div>
+            <div key="rrblock" css={footerListBlock}>
+                <div css={supportLink}>Support The&nbsp;Guardian</div>
                 <ReaderRevenueButton
                     nav={nav}
                     rrLink={'ampFooter'}
@@ -167,20 +167,20 @@ const FooterLinks: React.FC<{
 };
 
 export const Footer: React.FC<{ nav: NavType }> = ({ nav }) => (
-    <footer className={footer}>
+    <footer css={footer}>
         <InnerContainer>
-            <div className={footerInner}>
+            <div css={footerInner}>
                 <FooterLinks links={footerLinksNew} nav={nav} />
             </div>
         </InnerContainer>
-        <InnerContainer className={copyrightContainer}>
-            <a className={backToTopLink} href="#top">
-                <span className={backToTopText}>Back to top</span>
-                <span className={iconContainer}>
-                    <i className={icon} />
+        <InnerContainer css={copyrightContainer}>
+            <a css={backToTopLink} href="#top">
+                <span css={backToTopText}>Back to top</span>
+                <span css={iconContainer}>
+                    <i css={icon} />
                 </span>
             </a>
-            <div className={copyright}>
+            <div css={copyright}>
                 © {year} Guardian News and Media Limited or its affiliated
                 companies. All rights reserved.
             </div>

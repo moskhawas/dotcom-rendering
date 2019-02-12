@@ -1,5 +1,5 @@
 import React from 'react';
-import { css, cx } from 'emotion';
+import { css } from '@emotion/core';
 
 const style = css`
     padding-left: 10px;
@@ -9,8 +9,8 @@ const style = css`
 export const InnerContainer: React.FC<{
     className?: string;
     children: React.ReactNode;
-}> = ({ className, children, ...props }) => (
-    <div className={cx(style, className)} {...props}>
+}> = ({ children, ...props }) => (
+    <div css={style} {...props}>
         {children}
     </div>
 );

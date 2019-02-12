@@ -5,7 +5,7 @@ import { Body } from '@frontend/amp/components/Body';
 import { Header } from '@frontend/amp/components/Header';
 import { palette } from '@guardian/pasteup/palette';
 import { Onward } from '@frontend/amp/components/Onward';
-import { css } from 'emotion';
+import { css } from '@emotion/core';
 import { Sidebar } from '@frontend/amp/components/Sidebar';
 import { Analytics, AnalyticsModel } from '@frontend/amp/components/Analytics';
 
@@ -64,7 +64,7 @@ export const Article: React.FC<{
     <>
         <Analytics key="analytics" analytics={analytics} />
 
-        <div key="main" className={backgroundColour}>
+        <div key="main" css={backgroundColour}>
             <Container>
                 <Header
                     nav={nav}

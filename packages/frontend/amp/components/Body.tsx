@@ -1,7 +1,7 @@
 import React from 'react';
 import { InnerContainer } from '@frontend/amp/components/InnerContainer';
 import { Elements } from '@frontend/amp/components/lib/Elements';
-import { css } from 'emotion';
+import { css } from '@emotion/core';
 import { ArticleModel } from '@frontend/amp/pages/Article';
 import { TopMeta } from '@frontend/amp/components/TopMeta';
 import { SubMeta } from '@frontend/amp/components/SubMeta';
@@ -15,7 +15,7 @@ export const Body: React.FC<{
     data: ArticleModel;
     config: ConfigType;
 }> = ({ pillar, data, config }) => (
-    <InnerContainer className={body}>
+    <InnerContainer css={body}>
         <TopMeta config={config} articleData={data} />
         <Elements
             pillar={pillar}

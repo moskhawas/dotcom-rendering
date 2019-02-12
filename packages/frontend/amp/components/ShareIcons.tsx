@@ -1,5 +1,5 @@
 import React from 'react';
-import { css, cx } from 'emotion';
+import { css } from '@emotion/core';
 import { palette } from '@guardian/pasteup/palette';
 import TwitterIconPadded from '@guardian/pasteup/icons/twitter-padded.svg';
 import FacebookIcon from '@guardian/pasteup/icons/facebook.svg';
@@ -113,20 +113,20 @@ export const ShareIcons: React.FC<{
                 const { Icon, id, url, userMessage } = shareListItem;
 
                 return (
-                    <li className={shareIconsListItem} key={`${id}Share`}>
+                    <li css={shareIconsListItem} key={`${id}Share`}>
                         <a href={url} role="button">
                             <span
-                                className={css`
+                                css={css`
                                     ${screenReaderOnly};
                                 `}
                             >
                                 {userMessage}
                             </span>
                             <span
-                                className={cx(
+                                css={[
                                     shareIcon(pillarPalette[pillar].main),
                                     pillarFill[pillar],
-                                )}
+                                ]}
                             >
                                 <Icon />
                             </span>

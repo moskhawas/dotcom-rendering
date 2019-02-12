@@ -1,5 +1,5 @@
 import React from 'react';
-import { css, cx } from 'emotion';
+import { css } from '@emotion/core';
 import { palette } from '@guardian/pasteup/palette';
 import { headline, textSans } from '@guardian/pasteup/typography';
 import { pillarPalette } from '@frontend/lib/pillars';
@@ -45,11 +45,8 @@ export const RichLinkBlockComponent: React.FC<{
         throw new Error('Sponsored rich links not supported');
     }
     return (
-        <aside className={richLinkContainer}>
-            <a
-                className={cx(richLink, pillarColour(pillar))}
-                href={element.url}
-            >
+        <aside css={richLinkContainer}>
+            <a css={[richLink, pillarColour(pillar)]} href={element.url}>
                 {element.text}
             </a>
         </aside>

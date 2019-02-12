@@ -1,6 +1,6 @@
 import React from 'react';
 import { headline, textSans, body } from '@guardian/pasteup/typography';
-import { css, cx } from 'emotion';
+import { css } from '@emotion/core';
 import { palette } from '@guardian/pasteup/palette';
 import { pillarMap, pillarPalette } from '@frontend/lib/pillars';
 import { ShareCount } from '@frontend/web/components/ShareCount';
@@ -70,7 +70,7 @@ const listStyles = (pillar: Pillar) => css`
         margin-left: 0px;
     }
 
-    // TODO - unclear if we need the list styles as well here
+    /* TODO - unclear if we need the list styles as well here */
     li {
         margin-bottom: 6px;
         padding-left: 20px;
@@ -168,10 +168,10 @@ const Headline: React.FC<{
     pillar: Pillar;
 }> = ({ headlineText, standfirst, pillar }) => {
     return (
-        <div className={headlineCss}>
-            <h1 className={cx(headerStyle)}>{headlineText}</h1>
+        <div css={headlineCss}>
+            <h1 css={headerStyle}>{headlineText}</h1>
             <div // tslint:disable-line:react-no-dangerous-html
-                className={cx(standfirstCss[pillar], standfirstLinks[pillar])}
+                css={[standfirstCss[pillar], standfirstLinks[pillar]]}
                 dangerouslySetInnerHTML={{
                     __html: standfirst,
                 }}
@@ -202,14 +202,14 @@ const Byline: React.FC<{
         return token;
     });
 
-    return <div className={bylineStyle(pillar)}>{linkedByline}</div>;
+    return <div css={bylineStyle(pillar)}>{linkedByline}</div>;
 };
 
 export const TopMeta: React.FC<{
     config: ConfigType;
     articleData: ArticleModel;
 }> = ({ config, articleData }) => (
-    <header className={header}>
+    <header css={header}>
         {articleData.mainMediaElements.map((element, i) => (
             <MainMedia key={i} element={element} />
         ))}
@@ -220,7 +220,7 @@ export const TopMeta: React.FC<{
             pillar={articleData.pillar}
         />
 
-        <div className={meta}>
+        <div css={meta}>
             <Byline
                 byline={articleData.author.byline}
                 tags={articleData.tags}
@@ -229,21 +229,21 @@ export const TopMeta: React.FC<{
 
             {articleData.author.twitterHandle && (
                 <a
-                    className={bylineExtras}
+                    css={bylineExtras}
                     href={`https://twitter.com/${
                         articleData.author.twitterHandle
                     }`}
                 >
-                    <TwitterIcon className={twitterIcon} /> @
+                    <TwitterIcon css={twitterIcon} /> @
                     {articleData.author.twitterHandle}
                 </a>
             )}
 
-            <div className={bylineExtras}>
+            <div css={bylineExtras}>
                 {articleData.webPublicationDateDisplay}
             </div>
 
-            <div className={metaExtras}>
+            <div css={metaExtras}>
                 <ShareIcons
                     sharingUrls={articleData.sharingUrls}
                     pillar={articleData.pillar}
@@ -252,11 +252,11 @@ export const TopMeta: React.FC<{
                 <ShareCount config={config} pageId={articleData.pageId} />
                 {articleData.ageWarning && (
                     <div
-                        className={cx(
+                        css={[
                             ageWarningCss,
                             pillarColours[articleData.pillar],
                             pillarFill[articleData.pillar],
-                        )}
+                        ]}
                     >
                         <ClockIcon /> {articleData.ageWarning}
                     </div>

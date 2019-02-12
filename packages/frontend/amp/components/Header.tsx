@@ -1,5 +1,5 @@
 import React from 'react';
-import { css, cx } from 'emotion';
+import { css } from '@emotion/core';
 import Logo from '@guardian/pasteup/logos/the-guardian.svg';
 import { screenReaderOnly } from '@guardian/pasteup/mixins';
 import { headline } from '@guardian/pasteup/typography';
@@ -140,10 +140,10 @@ const navRow = css`
 
 const pillarLinks = (pillars: PillarType[], activePillar: Pillar) => (
     <nav>
-        <ul className={pillarListStyles}>
+        <ul css={pillarListStyles}>
             {pillars.map((p, i) => (
-                <li className={pillarListItemStyle} key={p.title}>
-                    <a className={pillarLinkStyle(p.pillar)} href={p.url}>
+                <li css={pillarListItemStyle} key={p.title}>
+                    <a css={pillarLinkStyle(p.pillar)} href={p.url}>
                         {p.title}
                     </a>
                 </li>
@@ -157,8 +157,8 @@ export const Header: React.FC<{
     activePillar: Pillar;
     config: ConfigType;
 }> = ({ nav, activePillar, config }) => (
-    <header className={headerStyles}>
-        <div className={row}>
+    <header css={headerStyles}>
+        <div css={row}>
             <ReaderRevenueButton
                 nav={nav}
                 rrLink={'ampHeader'}
@@ -168,24 +168,24 @@ export const Header: React.FC<{
 
             {config.switches.subscribeWithGoogle && <AmpSubscriptionGoogle />}
 
-            <a className={logoStyles} href="/">
+            <a css={logoStyles} href="/">
                 <span
-                    className={css`
+                    css={css`
                         ${screenReaderOnly};
                     `}
                 >
                     The Guardian - Back to home
                 </span>
-                <Logo className={logoStyles} />
+                <Logo css={logoStyles} />
             </a>
         </div>
 
-        <div className={cx(row, navRow)}>
+        <div css={[row, navRow]}>
             {pillarLinks(nav.pillars, activePillar)}
 
             {/* Note, the actual sidebar lives directly in the body as AMP requires this :( */}
-            <button className={veggieStyles} on="tap:sidebar1.toggle">
-                <span className={pattyStyles} />
+            <button css={veggieStyles} on="tap:sidebar1.toggle">
+                <span css={pattyStyles} />
             </button>
         </div>
     </header>

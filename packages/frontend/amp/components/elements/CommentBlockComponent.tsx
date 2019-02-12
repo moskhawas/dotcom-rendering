@@ -1,5 +1,5 @@
 import React from 'react';
-import { css } from 'emotion';
+import { css, ClassNames } from '@emotion/core';
 import { palette } from '@guardian/pasteup/palette';
 import { textSans } from '@guardian/pasteup/typography';
 
@@ -14,7 +14,7 @@ const wrapper = css`
     clear: left;
 `;
 
-const avatar = css`
+const avatar = `
     float: left;
     margin-right: 20px;
     margin-bottom: 12px;
@@ -41,28 +41,32 @@ const bodyCSS = css`
 export const CommentBlockComponent: React.FC<{
     element: CommentBlockElement;
 }> = ({ element }) => (
-    <div className={wrapper}>
-        <amp-img
-            class={avatar}
-            layout="fixed"
-            width="40"
-            height="40"
-            src={element.avatarURL}
-        />
+    <div css={wrapper}>
+        <ClassNames>
+            {({ css: cssClassNames }) => (
+                <amp-img
+                    class={cssClassNames`${avatar}`}
+                    layout="fixed"
+                    width="40"
+                    height="40"
+                    src={element.avatarURL}
+                />
+            )}
+        </ClassNames>
         <div>
-            <a className={metaLink} href={element.profileURL}>
+            <a css={metaLink} href={element.profileURL}>
                 {element.profileName}
             </a>
         </div>
 
         <div>
-            <a className={metaLink} href={element.permalink}>
+            <a css={metaLink} href={element.permalink}>
                 {element.dateTime}
             </a>
         </div>
 
         <div // tslint:disable-line:react-no-dangerous-html
-            className={bodyCSS}
+            css={bodyCSS}
             dangerouslySetInnerHTML={{ __html: element.body }}
         />
     </div>

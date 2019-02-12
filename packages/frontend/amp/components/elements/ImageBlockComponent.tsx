@@ -2,7 +2,7 @@ import React from 'react';
 import { Img } from '@frontend/amp/components/primitives/Img';
 import { textSans } from '@guardian/pasteup/typography';
 import { palette } from '@guardian/pasteup/palette';
-import { css } from 'emotion';
+import { css } from '@emotion/core';
 import { pillarPalette } from '@frontend/lib/pillars';
 import { bestFitImage, heightEstimate } from '@frontend/amp/lib/image-fit';
 import TriangleIcon from '@guardian/pasteup/icons/triangle.svg';
@@ -38,7 +38,7 @@ export const ImageBlockComponent: React.FC<{
     }
 
     return (
-        <figure className={figureStyle}>
+        <figure css={figureStyle}>
             <Img
                 src={image.src}
                 alt={element.data.alt}
@@ -48,8 +48,8 @@ export const ImageBlockComponent: React.FC<{
                 layout="responsive"
             />
             {element.data.caption && (
-                <figcaption className={captionStyle}>
-                    <span className={iconStyle}>
+                <figcaption css={captionStyle}>
+                    <span css={iconStyle}>
                         <TriangleIcon />
                     </span>
                     {element.data.caption}

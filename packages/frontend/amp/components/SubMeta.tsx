@@ -1,5 +1,5 @@
 import React from 'react';
-import { css, cx } from 'emotion';
+import { css } from '@emotion/core';
 import { pillarPalette } from '@frontend/lib/pillars';
 import { textSans } from '@guardian/pasteup/typography';
 import { palette } from '@guardian/pasteup/palette';
@@ -123,9 +123,9 @@ export const SubMeta: React.FC<{
     isCommentable: boolean;
 }> = ({ pillar, sections, keywords, sharingURLs, pageID, isCommentable }) => {
     const sectionListItems = sections.map(link => (
-        <li className={itemStyle} key={link.url}>
+        <li css={itemStyle} key={link.url}>
             <a
-                className={sectionLinkStyle(pillar)}
+                css={sectionLinkStyle(pillar)}
                 href={`https://www.theguardian.com/${link.url}`}
             >
                 {link.title}
@@ -134,9 +134,9 @@ export const SubMeta: React.FC<{
     ));
 
     const keywordListItems = keywords.map(link => (
-        <li className={itemStyle} key={link.url}>
+        <li css={itemStyle} key={link.url}>
             <a
-                className={linkStyle(pillar)}
+                css={linkStyle(pillar)}
                 href={`https://www.theguardian.com/${link.url}`}
             >
                 {link.title}
@@ -146,13 +146,13 @@ export const SubMeta: React.FC<{
 
     return (
         <>
-            <div className={guardianLines}>
-                <span className={labelStyle}>Topics</span>
-                <ul className={sectionListStyle}>{sectionListItems}</ul>
-                <ul className={keywordListStyle}>{keywordListItems}</ul>
+            <div css={guardianLines}>
+                <span css={labelStyle}>Topics</span>
+                <ul css={sectionListStyle}>{sectionListItems}</ul>
+                <ul css={keywordListStyle}>{keywordListItems}</ul>
             </div>
             <ShareIcons
-                className={shareIcons}
+                css={shareIcons}
                 sharingUrls={sharingURLs}
                 pillar={pillar}
                 displayIcons={[
@@ -166,13 +166,13 @@ export const SubMeta: React.FC<{
                 ]}
             />
             {/* TODO link to actual (non-AMP) site here. Also handle comment count behaviour. */}
-            <div className={cx(guardianLines, siteLinks)}>
+            <div css={[guardianLines, siteLinks]}>
                 {isCommentable && (
-                    <a className={siteLinkStyle} href={`/${pageID}#comments`}>
-                        <CommentIcon className={commentIcon} /> View comments
+                    <a css={siteLinkStyle} href={`/${pageID}#comments`}>
+                        <CommentIcon css={commentIcon} /> View comments
                     </a>
                 )}
-                <a className={siteLinkStyle} href={`/${pageID}`}>
+                <a css={siteLinkStyle} href={`/${pageID}`}>
                     View on theguardian.com
                 </a>
             </div>

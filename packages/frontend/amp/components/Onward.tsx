@@ -1,5 +1,5 @@
 import React from 'react';
-import { css } from 'emotion';
+import { css, ClassNames } from '@emotion/core';
 import Plus from '@guardian/pasteup/icons/plus.svg';
 import { InnerContainer } from '@frontend/amp/components/InnerContainer';
 import { OnwardContainer } from '@frontend/amp/components/OnwardContainer';
@@ -9,7 +9,7 @@ const wrapper = css`
     padding-top: 24px;
 `;
 
-const outbrainStyle = css`
+const outbrainStyle = `
     border-top: none;
 `;
 
@@ -21,20 +21,24 @@ const outbrainContainer = (webURL: string, isCompliant: boolean) => {
     const outbrainURL = `https://widgets.outbrain.com/hub/amp.html#${outbrainParams}`;
 
     return (
-        <amp-iframe
-            key={outbrainURL}
-            height="480"
-            sandbox="allow-scripts allow-same-origin allow-popups"
-            layout="fixed-height"
-            frameborder="0"
-            src={outbrainURL}
-            class={outbrainStyle}
-        >
-            <div overflow="true">
-                More stories
-                <Plus />
-            </div>
-        </amp-iframe>
+        <ClassNames>
+            {({ css: cssClassNames }) => (
+                <amp-iframe
+                    key={outbrainURL}
+                    height="480"
+                    sandbox="allow-scripts allow-same-origin allow-popups"
+                    layout="fixed-height"
+                    frameborder="0"
+                    src={outbrainURL}
+                    class={cssClassNames`${outbrainStyle}`}
+                >
+                    <div overflow="true">
+                        More stories
+                        <Plus />
+                    </div>
+                </amp-iframe>
+            )}
+        </ClassNames>
     );
 };
 
@@ -140,5 +144,5 @@ export const Onward: React.FC<{
         headlines,
     );
 
-    return <InnerContainer className={wrapper}>{containers}</InnerContainer>;
+    return <InnerContainer css={wrapper}>{containers}</InnerContainer>;
 };

@@ -15,23 +15,23 @@ import VolumeHigh from '@guardian/pasteup/icons/volume-high.svg';
 import Quote from '@guardian/pasteup/icons/quote.svg';
 import Clock from '@guardian/pasteup/icons/clock.svg';
 import { palette } from '@guardian/pasteup/palette';
-import { css } from 'emotion';
+import { ClassNames } from '@emotion/core';
 
-const inner = css`
+const inner = `
     padding-top: 3px;
     overflow: hidden;
     position: relative;
     border-top: 1px solid ${palette.neutral[86]};
     margin-top: 24px;
 `;
-const header = css`
+const header = `
     padding-bottom: 12px;
     font-weight: 500;
     position: relative;
     ${headline(3)};
     text-transform: capitalize;
 `;
-const item = css`
+const item = `
     background-color: ${palette.neutral[93]};
     border-top: 1px solid ${palette.neutral[93]};
     padding-left: 126px;
@@ -40,17 +40,17 @@ const item = css`
     margin-bottom: 12px;
     overflow: hidden;
 `;
-const imageContainer = css`
+const imageContainer = `
     position: absolute;
     left: 0;
 `;
-const itemContent = css`
+const itemContent = `
     min-height: 60px;
     padding: 0 5px;
     position: relative;
     overflow: hidden;
 `;
-const link = css`
+const link = `
     position: absolute;
     top: 0;
     right: 0;
@@ -62,7 +62,7 @@ const link = css`
     white-space: nowrap;
     background: transparent;
 `;
-const headlineCSS = css`
+const headlineCSS = `
     padding: 0;
     margin: 1px 0 4px;
     font-weight: 500;
@@ -70,12 +70,12 @@ const headlineCSS = css`
     ${headline(1)};
 `;
 
-const description = css`
+const description = `
     ${headline(2)};
     margin-bottom: 16px;
 `;
 
-const iconCSS = css`
+const iconCSS = `
     svg {
         fill: ${palette.neutral[7]};
         padding-right: 2px;
@@ -84,7 +84,7 @@ const iconCSS = css`
     }
 `;
 
-const quoteIconCSS = css`
+const quoteIconCSS = `
     svg {
         fill: ${palette.neutral[60]};
         padding-right: 2px;
@@ -93,13 +93,13 @@ const quoteIconCSS = css`
     }
 `;
 
-const ageWarning = css`
+const ageWarning = `
     color: ${palette.neutral[20]};
     fill: ${palette.neutral[20]};
     ${textSans(1)};
 `;
 
-const onward = css`
+const onward = `
     .show-more[overflow] {
         position: absolute;
         bottom: 0;
@@ -141,93 +141,143 @@ export const OnwardContainer: React.FC<{
     guardianBaseURL: string;
     path: string;
 }> = ({ guardianBaseURL, path }) => (
-    <amp-list
-        layout="fixed-height"
-        height="184px"
-        src={path}
-        credentials="include"
-        class={onward}
-    >
-        <MoustacheTemplate>
-            <MoustacheSection name="showContent">
-                <div className={inner}>
-                    <div className={header}>
-                        <MoustacheVariable name="displayName" />
-                    </div>
-                    <MoustacheSection name="description">
-                        {/*  Don't show if there is not description WHAT STYLES HERE */}
-                        <div className={description}>
-                            <MoustacheVariable name="description" />
+    <ClassNames>
+        {({ css }) => (
+            <amp-list
+                layout="fixed-height"
+                height="184px"
+                src={path}
+                credentials="include"
+                class={css`
+                    ${onward}
+                `}
+            >
+                <MoustacheTemplate>
+                    <MoustacheSection name="showContent">
+                        <div
+                            className={css`
+                                ${inner}
+                            `}
+                        >
+                            <div
+                                className={css`
+                                    ${header}
+                                `}
+                            >
+                                <MoustacheVariable name="displayName" />
+                            </div>
+                            <MoustacheSection name="description">
+                                {/*  Don't show if there is not description WHAT STYLES HERE */}
+                                <div
+                                    className={css`
+                                        ${description}
+                                    `}
+                                >
+                                    <MoustacheVariable name="description" />
+                                </div>
+                            </MoustacheSection>
+
+                            <MoustacheSection name="content">
+                                <MoustacheSection name="headline">
+                                    {/* Don't show if headline is empty */}
+                                    <div
+                                        className={css`
+                                            ${item}
+                                        `}
+                                    >
+                                        <div
+                                            className={css`
+                                                ${imageContainer}
+                                            `}
+                                        >
+                                            <amp-img
+                                                src={moustacheVariable(
+                                                    'thumbnail',
+                                                )}
+                                                layout="fixed"
+                                                width="126"
+                                                height="75"
+                                            />
+                                        </div>
+                                        <div
+                                            className={css`
+                                                ${itemContent}
+                                            `}
+                                        >
+                                            <div>
+                                                <h2
+                                                    className={css`
+                                                        ${headlineCSS}
+                                                    `}
+                                                >
+                                                    <span
+                                                        className={css`
+                                                            ${iconCSS}
+                                                        `}
+                                                    >
+                                                        <MoustacheSection name="isVideo">
+                                                            <VideoIcon />
+                                                        </MoustacheSection>
+                                                        <MoustacheSection name="isGallery">
+                                                            <Camera />
+                                                        </MoustacheSection>
+                                                        <MoustacheSection name="isAudio">
+                                                            <VolumeHigh />
+                                                        </MoustacheSection>
+                                                    </span>
+                                                    <span
+                                                        className={css`
+                                                            ${quoteIconCSS}
+                                                        `}
+                                                    >
+                                                        <MoustacheSection name="isComment">
+                                                            <Quote />
+                                                        </MoustacheSection>
+                                                    </span>
+                                                    <MoustacheVariable name="headline" />
+                                                </h2>
+                                                <MoustacheSection name="isComment">
+                                                    <div>
+                                                        <MoustacheVariable name="byline" />
+                                                    </div>
+                                                </MoustacheSection>
+                                            </div>
+                                            <aside
+                                                className={css`
+                                                    ${ageWarning}
+                                                `}
+                                            >
+                                                <time>
+                                                    <MoustacheSection name="showWebPublicationDate">
+                                                        <Clock />{' '}
+                                                        <MoustacheVariable name="webPublicationDate" />
+                                                    </MoustacheSection>
+                                                </time>
+                                            </aside>
+                                        </div>
+                                        <a
+                                            className={css`
+                                                ${link}
+                                            `}
+                                            // tslint:disable-line:react-a11y-anchors
+                                            href={
+                                                guardianBaseURL +
+                                                moustacheVariable('url')
+                                            }
+                                        >
+                                            <MoustacheVariable name="headline" />
+                                        </a>
+                                    </div>
+                                </MoustacheSection>
+                            </MoustacheSection>
                         </div>
                     </MoustacheSection>
-
-                    <MoustacheSection name="content">
-                        <MoustacheSection name="headline">
-                            {/* Don't show if headline is empty */}
-                            <div className={item}>
-                                <div className={imageContainer}>
-                                    <amp-img
-                                        src={moustacheVariable('thumbnail')}
-                                        layout="fixed"
-                                        width="126"
-                                        height="75"
-                                    />
-                                </div>
-                                <div className={itemContent}>
-                                    <div>
-                                        <h2 className={headlineCSS}>
-                                            <span className={iconCSS}>
-                                                <MoustacheSection name="isVideo">
-                                                    <VideoIcon />
-                                                </MoustacheSection>
-                                                <MoustacheSection name="isGallery">
-                                                    <Camera />
-                                                </MoustacheSection>
-                                                <MoustacheSection name="isAudio">
-                                                    <VolumeHigh />
-                                                </MoustacheSection>
-                                            </span>
-                                            <span className={quoteIconCSS}>
-                                                <MoustacheSection name="isComment">
-                                                    <Quote />
-                                                </MoustacheSection>
-                                            </span>
-                                            <MoustacheVariable name="headline" />
-                                        </h2>
-                                        <MoustacheSection name="isComment">
-                                            <div>
-                                                <MoustacheVariable name="byline" />
-                                            </div>
-                                        </MoustacheSection>
-                                    </div>
-                                    <aside className={ageWarning}>
-                                        <time>
-                                            <MoustacheSection name="showWebPublicationDate">
-                                                <Clock />{' '}
-                                                <MoustacheVariable name="webPublicationDate" />
-                                            </MoustacheSection>
-                                        </time>
-                                    </aside>
-                                </div>
-                                <a
-                                    className={link}
-                                    // tslint:disable-line:react-a11y-anchors
-                                    href={
-                                        guardianBaseURL +
-                                        moustacheVariable('url')
-                                    }
-                                >
-                                    <MoustacheVariable name="headline" />
-                                </a>
-                            </div>
-                        </MoustacheSection>
-                    </MoustacheSection>
+                </MoustacheTemplate>
+                <div className="show-more" overflow="">
+                    <PlusIcon />
+                    Show more
                 </div>
-            </MoustacheSection>
-        </MoustacheTemplate>
-        <div className="show-more" overflow="">
-            <PlusIcon />
-            Show more
-        </div>
-    </amp-list>
+            </amp-list>
+        )}
+    </ClassNames>
 );

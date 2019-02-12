@@ -1,5 +1,5 @@
 import React from 'react';
-import { css } from 'emotion';
+import { css } from '@emotion/core';
 import { until } from '@guardian/pasteup/breakpoints';
 import { palette } from '@guardian/pasteup/palette';
 import { adJson } from '@frontend/amp/lib/ad-json';
@@ -106,7 +106,7 @@ export const AdComponent: React.SFC<{
     config: CommercialConfig;
     commercialProperties: CommercialProperties;
 }> = ({ edition, section, contentType, config, commercialProperties }) => (
-    <div className={adStyle}>
+    <div css={adStyle}>
         <amp-ad
             width={300}
             height={250}

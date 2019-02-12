@@ -1,7 +1,7 @@
 import React from 'react';
 import { Img } from '@frontend/amp/components/primitives/Img';
 import { bestFitImage, heightEstimate } from '@frontend/amp/lib/image-fit';
-import { css } from 'emotion';
+import { css } from '@emotion/core';
 import { textSans } from '@guardian/pasteup/typography';
 import InfoIcon from '@guardian/pasteup/icons/info.svg';
 import { palette } from '@guardian/pasteup/palette';
@@ -75,7 +75,7 @@ const mainImage = (element: ImageBlockElement): JSX.Element | null => {
     }
 
     return (
-        <figure className={figureStyle}>
+        <figure css={figureStyle}>
             <Img
                 src={image.src}
                 alt={element.data.alt}
@@ -90,12 +90,12 @@ const mainImage = (element: ImageBlockElement): JSX.Element | null => {
                         aria-checked={false}
                         type="checkbox"
                         id="show-caption"
-                        className={inputStyle}
+                        css={inputStyle}
                     />
-                    <label className={labelStyle} htmlFor="show-caption">
+                    <label css={labelStyle} htmlFor="show-caption">
                         <InfoIcon />
                     </label>
-                    <figcaption className={captionStyle}>
+                    <figcaption css={captionStyle}>
                         {element.data.caption}
                     </figcaption>
                 </>

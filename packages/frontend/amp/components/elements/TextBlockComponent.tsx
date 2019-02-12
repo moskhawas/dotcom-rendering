@@ -1,5 +1,5 @@
 import React from 'react';
-import { css } from 'emotion';
+import { css } from '@emotion/core';
 import { palette } from '@guardian/pasteup/palette';
 import { pillarPalette } from '@frontend/lib/pillars';
 import { textSans, body } from '@guardian/pasteup/typography';
@@ -35,7 +35,7 @@ export const TextBlockComponent: React.FC<{
     pillar: Pillar;
 }> = ({ html, pillar }) => (
     <span
-        className={style(pillar)}
+        css={style(pillar)}
         dangerouslySetInnerHTML={{
             __html: html,
         }}

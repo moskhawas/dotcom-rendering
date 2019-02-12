@@ -1,5 +1,5 @@
 import React from 'react';
-import { css, cx } from 'emotion';
+import { css } from '@emotion/core';
 
 const container = css`
     margin: auto;
@@ -9,8 +9,8 @@ const container = css`
 export const Container: React.FC<{
     className?: string;
     children: React.ReactNode;
-}> = ({ className, children, ...props }) => (
-    <div className={cx(container, className)} {...props}>
+}> = ({ children, ...props }) => (
+    <div css={container} {...props}>
         {children}
     </div>
 );
