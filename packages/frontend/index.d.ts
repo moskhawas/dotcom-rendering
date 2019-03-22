@@ -188,7 +188,10 @@ interface CommercialConfigType {
             editorialProd: string;
             editorialTest: string;
         }
-    }
+    };
+    page: {
+        ajaxUrl: string;
+    };
 }
 
 // 3rd party type declarations
