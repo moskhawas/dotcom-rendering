@@ -198,6 +198,7 @@ interface CommercialConfigType {
         hbImpl: string;
         isDev: boolean;
         isFront: boolean;
+        isHosted: boolean;
     };
 }
 
