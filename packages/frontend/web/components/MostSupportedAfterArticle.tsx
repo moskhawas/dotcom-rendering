@@ -7,6 +7,7 @@ import { BigNumber } from '@guardian/guui';
 import { AsyncClientComponent } from './lib/AsyncClientComponent';
 import { reportError } from '@frontend/web/browser/reportError';
 import { SupportButton } from './SupportButton';
+// import { debug } from 'util';
 
 const container = css`
     border-top: 1px solid ${palette.neutral[86]};
@@ -118,7 +119,7 @@ const listItem = css`
         }
     }
 
-    animation: in .5s alternate;
+    animation: in 0.5s;
 
     &:before {
         position: absolute;
@@ -203,10 +204,10 @@ interface Trail {
     isLiveBlog: boolean;
 }
 
-interface Tab {
-    heading: string;
-    trails: Trail[];
-}
+// interface Tab {
+//     heading: string;
+//     trails: Trail[];
+// }
 
 interface Props {
     sectionName: string;
@@ -249,7 +250,7 @@ export class MostSupportedAfterArticle extends Component<
     public render() {
         setTimeout(() => {
             this.shuffleOrder();
-        }, 1000);
+        }, 1500);
 
         return (
             <div className={container}>
@@ -262,57 +263,71 @@ export class MostSupportedAfterArticle extends Component<
                 <AsyncClientComponent f={this.fetchTrails}>
                     {({ data }) => (
                         <div className={listContainer}>
-                            {(data || []).map((tab, i) => (
-                                <ol
-                                    className={cx(list, {
-                                        [hideList]:
-                                            i !== this.state.selectedTabIndex,
-                                    })}
-                                    id={`tabs-popular-${i}`}
-                                    key={`tabs-popular-${i}`}
-                                    role="tabpanel"
-                                    aria-labelledby={`tabs-popular-${i}-tab`}
-                                >
-                                    {(this.state.order || []).map((ii, iii) => {
-                                        const trail = tab.trails[ii];
-                                        return (
+                            <ol className={list} role="tabpanel">
+                                {(data || []).filter(article => article && article.url && article.headline).slice(0, 10).map(
+                                    (article, i) => (
                                             <li
                                                 className={cx(
                                                     listItem,
                                                     css`
                                                         order: ${this.state
-                                                            .order[ii]};
+                                                            .order[i]};
                                                     `,
                                                 )}
-                                                key={trail.url}
+                                                key={article.url}
                                             >
-                                                <span className={bigNumber}>
-                                                    <BigNumber
-                                                        index={iii + 1}
-                                                    />
-                                                </span>
-                                                <h2 className={headlineHeader}>
-                                                    <a
-                                                        className={headlineLink}
-                                                        href={trail.url}
-                                                    >
-                                                        {trail.isLiveBlog && (
-                                                            <span
-                                                                className={
-                                                                    liveKicker
-                                                                }
-                                                            >
-                                                                Live
-                                                            </span>
-                                                        )}
-                                                        {trail.linkText}
-                                                    </a>
+                                            <span className={bigNumber}>
+                                                <BigNumber index={i + 1} />
+                                            </span>
+                                            <h2 className={headlineHeader}>
+                                                <a
+                                                    className={headlineLink}
+                                                    href={article.url}
+                                                >
+                                                {article.headline}
+                                                </a>
                                                 </h2>
                                             </li>
-                                        );
-                                    })}
-                                </ol>
-                            ))}
+                                        )
+                                    // debugger
+                                    // const trail = data[ii];
+                                    // console.log(trail);
+                                    // return (
+                                    //     <li
+                                    //         className={cx(
+                                    //             listItem,
+                                    //             css`
+                                    //                 order: ${this.state.order[
+                                    //                     ii
+                                    //                 ]};
+                                    //             `,
+                                    //         )}
+                                    //         key={trail.url}
+                                    //     >
+                                    //         <span className={bigNumber}>
+                                    //             <BigNumber index={ii + 1} />
+                                    //         </span>
+                                    //         <h2 className={headlineHeader}>
+                                    //             <a
+                                    //                 className={headlineLink}
+                                    //                 href={trail.url}
+                                    //             >
+                                    //                 {trail.isLiveBlog && (
+                                    //                     <span
+                                    //                         className={
+                                    //                             liveKicker
+                                    //                         }
+                                    //                     >
+                                    //                         Live
+                                    //                     </span>
+                                    //                 )}
+                                    //                 {trail.linkText}
+                                    //             </a>
+                                    //         </h2>
+                                    //     </li>
+                                    // );
+                                )}
+                            </ol>
                         </div>
                     )}
                 </AsyncClientComponent>
@@ -320,34 +335,56 @@ export class MostSupportedAfterArticle extends Component<
         );
     }
 
-    public fetchTrails: () => Promise<Tab[]> = () => {
-        const endpoint = `/most-read.json`;
-        // const options = {
-        //     method: 'GET',
-        //     mode: 'no-cors'
-        //   };
-        return new Promise((resolve, reject) => {
-            fetch(`https://api.nextgen.guardianapps.co.uk${endpoint}?guui`)
-                // fetch(`//8da7d061-default-whatifres-2b90-1386033275.eu-west-1.elb.amazonaws.com/contributions`, options)
-                .then(response => {
-                    if (!response.ok) {
-                        resolve([]);
-                    }
-                    return response.json();
-                })
-                .then(mostRead => {
-                    if (Array.isArray(mostRead)) {
-                        resolve(mostRead);
-                    }
+    public fetchTrails: () => Promise<any> = () => {
+        return fetch(
+            `https://what-if-streaming-was-a-reality.ophan.co.uk/contributions`,
+        )
+            .then(response => {
+                if (!response.ok) {
                     resolve([]);
-                })
-                .catch(err => {
-                    reportError(err, {
-                        feature: 'most-viewed',
-                    });
-
-                    return resolve([]);
+                }
+                return response.json();
+            })
+            .then(mostSupported => {
+                if (Array.isArray(mostSupported)) {
+                    return Promise.all(
+                        mostSupported.map((article, index) => {
+                            const url = new URL(article.url);
+                            const path = url.pathname;
+                            const host = url.hostname;
+                            if (
+                                path.split('/').length > 3 &&
+                                host === 'www.theguardian.com'
+                            ) {
+                                return fetch(
+                                    `https://content.guardianapis.com${path}?show-fields=headline&api-key=test`,
+                                )
+                                    .then(capiResponse => {
+                                        return capiResponse.json();
+                                    })
+                                    .then(articleJSON => {
+                                        article.headline =
+                                            articleJSON.response.content.webTitle;
+                                        return article;
+                                    })
+                                    .catch(err => {
+                                        reportError(err, {
+                                            feature: 'most-supported',
+                                        });
+                                        return article;
+                                    });
+                            }
+                        }),
+                    );
+                    return mostSupported;
+                }
+            })
+            .catch(err => {
+                reportError(err, {
+                    feature: 'most-supported',
                 });
-        });
+                // console.log(err);
+                // return resolve([]);
+            });
     };
 }
