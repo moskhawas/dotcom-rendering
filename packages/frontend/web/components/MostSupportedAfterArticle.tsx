@@ -54,6 +54,7 @@ const subheading = css`
     float: left;
     clear: left;
     font-weight: 100;
+    max-width: 80%;
 
     ${leftCol} {
         ${headline(2)};
@@ -81,13 +82,20 @@ const list = css`
     margin-top: 12px;
     display: grid;
     grid-auto-flow: column;
+    clear: left;
+    grid-gap: 0 10px;
+    grid-template-columns: auto;
+    grid-template-rows: repeat(10, auto);
 
     ${tablet} {
-        margin-left: 10px;
-        margin-top: 0;
         grid-template-columns: repeat(2, 300px);
         grid-template-rows: repeat(5, auto);
-        grid-gap: 0 10px;
+    }
+
+    ${leftCol} {
+        margin-top: 0;
+        margin-left: 10px;
+        clear: none;
     }
 `;
 
@@ -101,6 +109,17 @@ const listItem = css`
     padding-top: 4px;
     padding-bottom: 24px;
 
+    @keyframes in {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    animation: in .5s alternate;
+
     &:before {
         position: absolute;
         top: 0;
@@ -111,12 +130,6 @@ const listItem = css`
         width: 100%;
         height: 1px;
         background-color: ${palette.neutral[86]};
-    }
-
-    :first-of-type {
-        &:before {
-            display: none;
-        }
     }
 
     &:after {
@@ -135,12 +148,6 @@ const listItem = css`
         height: 100%;
         display: inline-block;
         width: 100%;
-
-        :nth-of-type(6) {
-            &:before {
-                display: none;
-            }
-        }
     }
 `;
 
@@ -213,7 +220,24 @@ export class MostSupportedAfterArticle extends Component<
         super(props);
         this.state = {
             selectedTabIndex: 0,
+            order: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
         };
+    }
+
+    public shuffleOrder() {
+        const newOrder = this.state.order.slice(0);
+        const swap1 = Math.floor(Math.random() * newOrder.length);
+        const swap2 = Math.floor(Math.random() * newOrder.length);
+
+        const firstElement = newOrder[swap1];
+        const secondElement = newOrder[swap2];
+
+        newOrder[swap1] = secondElement;
+        newOrder[swap2] = firstElement;
+
+        this.setState({
+            order: newOrder,
+        });
     }
 
     public tabSelected(index: number) {
@@ -223,6 +247,10 @@ export class MostSupportedAfterArticle extends Component<
     }
 
     public render() {
+        setTimeout(() => {
+            this.shuffleOrder();
+        }, 1000);
+
         return (
             <div className={container}>
                 <h2 className={heading}>Most supported</h2>
@@ -245,33 +273,44 @@ export class MostSupportedAfterArticle extends Component<
                                     role="tabpanel"
                                     aria-labelledby={`tabs-popular-${i}-tab`}
                                 >
-                                    {(tab.trails || []).map((trail, ii) => (
-                                        <li
-                                            className={listItem}
-                                            key={trail.url}
-                                        >
-                                            <span className={bigNumber}>
-                                                <BigNumber index={ii + 1} />
-                                            </span>
-                                            <h2 className={headlineHeader}>
-                                                <a
-                                                    className={headlineLink}
-                                                    href={trail.url}
-                                                >
-                                                    {trail.isLiveBlog && (
-                                                        <span
-                                                            className={
-                                                                liveKicker
-                                                            }
-                                                        >
-                                                            Live
-                                                        </span>
-                                                    )}
-                                                    {trail.linkText}
-                                                </a>
-                                            </h2>
-                                        </li>
-                                    ))}
+                                    {(this.state.order || []).map((ii, iii) => {
+                                        const trail = tab.trails[ii];
+                                        return (
+                                            <li
+                                                className={cx(
+                                                    listItem,
+                                                    css`
+                                                        order: ${this.state
+                                                            .order[ii]};
+                                                    `,
+                                                )}
+                                                key={trail.url}
+                                            >
+                                                <span className={bigNumber}>
+                                                    <BigNumber
+                                                        index={iii + 1}
+                                                    />
+                                                </span>
+                                                <h2 className={headlineHeader}>
+                                                    <a
+                                                        className={headlineLink}
+                                                        href={trail.url}
+                                                    >
+                                                        {trail.isLiveBlog && (
+                                                            <span
+                                                                className={
+                                                                    liveKicker
+                                                                }
+                                                            >
+                                                                Live
+                                                            </span>
+                                                        )}
+                                                        {trail.linkText}
+                                                    </a>
+                                                </h2>
+                                            </li>
+                                        );
+                                    })}
                                 </ol>
                             ))}
                         </div>
@@ -283,8 +322,13 @@ export class MostSupportedAfterArticle extends Component<
 
     public fetchTrails: () => Promise<Tab[]> = () => {
         const endpoint = `/most-read.json`;
+        // const options = {
+        //     method: 'GET',
+        //     mode: 'no-cors'
+        //   };
         return new Promise((resolve, reject) => {
             fetch(`https://api.nextgen.guardianapps.co.uk${endpoint}?guui`)
+                // fetch(`//8da7d061-default-whatifres-2b90-1386033275.eu-west-1.elb.amazonaws.com/contributions`, options)
                 .then(response => {
                     if (!response.ok) {
                         resolve([]);
