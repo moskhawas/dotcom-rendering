@@ -65,9 +65,6 @@ export const Article: React.FC<{
                     `,
                 )}
             >
-                <MostSupportedAfterArticle
-                    sectionName={data.CAPI.sectionName}
-                />
                 <MostSupportedAfterArticle />
                 <MostViewed sectionName={data.CAPI.sectionName} />
             </Container>
