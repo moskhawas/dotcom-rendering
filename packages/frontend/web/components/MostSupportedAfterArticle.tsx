@@ -1,13 +1,12 @@
 import React, { Component } from 'react';
-import { css, cx } from 'emotion';
-import { headline } from '@guardian/pasteup/typography';
+import { css } from 'emotion';
+import { headline, textSans } from '@guardian/pasteup/typography';
 import { palette } from '@guardian/pasteup/palette';
 import { desktop, tablet, leftCol, wide } from '@guardian/pasteup/breakpoints';
 import { BigNumber } from '@guardian/guui';
 import { AsyncClientComponent } from './lib/AsyncClientComponent';
 import { reportError } from '@frontend/web/browser/reportError';
 import { SupportButton } from './SupportButton';
-// import { debug } from 'util';
 
 const container = css`
     border-top: 1px solid ${palette.neutral[86]};
@@ -19,17 +18,8 @@ const container = css`
     }
 `;
 
-const heading = css`
-    ${headline(4)};
-    color: ${palette.neutral[7]};
-    float: left;
-    font-weight: 900;
-    padding-right: 5px;
-    padding-bottom: 4px;
-
-    ${leftCol} {
-        ${headline(3)};
-        width: 140px;
+const headingContainer = css`
+     {
         position: relative;
 
         :after {
@@ -42,29 +32,40 @@ const heading = css`
             right: -11px;
             top: -6px;
         }
-    }
 
-    ${wide} {
-        width: 220px;
+        ${leftCol} {
+            width: 140px;
+        }
+
+        ${wide} {
+            width: 220px;
+        }
+    }
+`;
+
+const heading = css`
+    ${headline(4)};
+    background-color: ${palette.highlight.main};
+    color: ${palette.neutral[7]};
+    float: left;
+    font-weight: 900;
+    padding: 3px;
+    margin-bottom: 6px;
+    white-space: nowrap;
+
+    ${leftCol} {
+        ${headline(3)};
     }
 `;
 
 const subheading = css`
-    ${headline(3)};
+    ${textSans(3)};
+    clear: left;
     color: ${palette.neutral[7]};
     float: left;
-    clear: left;
     font-weight: 100;
+    line-height: 18px;
     max-width: 80%;
-
-    ${leftCol} {
-        ${headline(2)};
-        width: 140px;
-    }
-
-    ${wide} {
-        width: 220px;
-    }
 `;
 
 const listContainer = css`
@@ -80,13 +81,13 @@ const listContainer = css`
 `;
 
 const list = css`
-    margin-top: 12px;
+    clear: left;
     display: grid;
     grid-auto-flow: column;
-    clear: left;
     grid-gap: 0 10px;
     grid-template-columns: auto;
     grid-template-rows: repeat(10, auto);
+    margin-top: 12px;
 
     ${tablet} {
         grid-template-columns: repeat(2, 300px);
@@ -94,21 +95,19 @@ const list = css`
     }
 
     ${leftCol} {
-        margin-top: 0;
-        margin-left: 10px;
         clear: none;
+        grid-template-columns: repeat(2, 460px);
+        margin-left: 10px;
+        margin-top: 0;
     }
 `;
 
-const hideList = css`
-    display: none;
-`;
-
 const listItem = css`
-    position: relative;
+    animation: in 1.5s;
     box-sizing: border-box;
-    padding-top: 4px;
     padding-bottom: 24px;
+    padding-top: 4px;
+    position: relative;
 
     @keyframes in {
         from {
@@ -119,110 +118,87 @@ const listItem = css`
         }
     }
 
-    animation: in 0.5s;
-
     &:before {
-        position: absolute;
-        top: 0;
-        right: 10px;
-        left: 0;
-        content: '';
-        display: block;
-        width: 100%;
-        height: 1px;
         background-color: ${palette.neutral[86]};
-    }
-
-    &:after {
         content: '';
         display: block;
-        clear: both;
+        height: 1px;
+        left: 0;
+        position: absolute;
+        right: 10px;
+        top: 0;
+        width: 100%;
     }
 
     ${tablet} {
-        padding-top: 3px;
-        padding-bottom: 0;
         min-height: 72px;
-    }
-
-    ${desktop} {
-        height: 100%;
-        display: inline-block;
-        width: 100%;
+        padding-bottom: 0;
+        padding-top: 3px;
     }
 `;
 
 const bigNumber = css`
+    fill: ${palette.neutral[7]};
     float: left;
     margin-top: 3px;
-    fill: ${palette.neutral[7]};
     position: relative;
 
     &::after {
-        position: absolute;
-        content: '';
-        height: 10px;
-        width: 10px;
         background-color: ${palette.highlight.main};
         border-radius: 50%;
         bottom: 2px;
+        content: '';
+        height: 10px;
+        position: absolute;
         right: -12px;
+        width: 10px;
     }
 `;
 
 const headlineHeader = css`
+    margin-left: 80px;
     margin-top: -4px;
-    margin-left: 70px;
-    padding-top: 2px;
-    padding-bottom: 2px;
-    word-wrap: break-word;
     overflow: hidden;
+    padding-bottom: 2px;
+    padding-top: 2px;
+    word-wrap: break-word;
 `;
 
 const headlineLink = css`
-    text-decoration: none;
+    ${headline(2)};
     color: ${palette.neutral[7]};
     font-weight: 500;
-    ${headline(2)};
+    text-decoration: none;
 `;
 
-const liveKicker = css`
-    color: ${palette.news.main};
-    font-weight: 700;
-
-    &::after {
-        content: '/';
-        display: inline-block;
-        font-weight: 900;
-        margin: 0 4px;
-    }
-`;
-
-interface Trail {
+interface Article {
     url: string;
-    linkText: string;
-    isLiveBlog: boolean;
-}
-
-// interface Tab {
-//     heading: string;
-//     trails: Trail[];
-// }
-
-interface Props {
-    sectionName: string;
+    headline: string;
 }
 
 export class MostSupportedAfterArticle extends Component<
-    Props,
-    { selectedTabIndex: number }
+    {},
+    { order: number[] }
 > {
-    constructor(props: Props) {
+    public refresh: NodeJS.Timeout | null;
+    constructor(props: {}) {
         super(props);
         this.state = {
-            selectedTabIndex: 0,
             order: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
         };
+        this.refresh = null;
+    }
+
+    public componentDidMount() {
+        this.refresh = setInterval(() => {
+            this.shuffleOrder();
+        }, 3000);
+    }
+
+    public componentWillUnmount() {
+        if (this.refresh != null) {
+            clearInterval(this.refresh);
+        }
     }
 
     public shuffleOrder() {
@@ -241,95 +217,64 @@ export class MostSupportedAfterArticle extends Component<
         });
     }
 
-    public tabSelected(index: number) {
-        this.setState({
-            selectedTabIndex: index,
-        });
-    }
-
     public render() {
-        setTimeout(() => {
-            this.shuffleOrder();
-        }, 1500);
-
         return (
             <div className={container}>
-                <h2 className={heading}>Most supported</h2>
-                <h3 className={subheading}>
-                    Stories that have most inspired readers to support Guardian
-                    journalism
-                </h3>
+                <div className={headingContainer}>
+                    <h2 className={heading}>Most supported</h2>
+                    <h3 className={subheading}>
+                        Stories that have received the most funding from our
+                        readers in the last 24 hours
+                    </h3>
+                </div>
                 <SupportButton />
                 <AsyncClientComponent f={this.fetchTrails}>
-                    {({ data }) => (
-                        <div className={listContainer}>
-                            <ol className={list} role="tabpanel">
-                                {(data || []).filter(article => article && article.url && article.headline).slice(0, 10).map(
-                                    (article, i) => (
-                                            <li
-                                                className={cx(
-                                                    listItem,
-                                                    css`
-                                                        order: ${this.state
-                                                            .order[i]};
-                                                    `,
-                                                )}
-                                                key={article.url}
-                                            >
-                                            <span className={bigNumber}>
-                                                <BigNumber index={i + 1} />
-                                            </span>
-                                            <h2 className={headlineHeader}>
-                                                <a
-                                                    className={headlineLink}
-                                                    href={article.url}
+                    {({ data }) => {
+                        const articles: Article[] = (data || [])
+                            .filter(
+                                (article: Article) =>
+                                    article && article.url && article.headline,
+                            )
+                            .slice(0, 10);
+                        return (
+                            <div className={listContainer}>
+                                <ol className={list} role="tabpanel">
+                                    {(this.state.order || []).map(
+                                        (i: number, ii: number) => {
+                                            const article: Article =
+                                                articles[i];
+                                            return article ? (
+                                                <li
+                                                    className={listItem}
+                                                    key={article.url}
                                                 >
-                                                {article.headline}
-                                                </a>
-                                                </h2>
-                                            </li>
-                                        )
-                                    // debugger
-                                    // const trail = data[ii];
-                                    // console.log(trail);
-                                    // return (
-                                    //     <li
-                                    //         className={cx(
-                                    //             listItem,
-                                    //             css`
-                                    //                 order: ${this.state.order[
-                                    //                     ii
-                                    //                 ]};
-                                    //             `,
-                                    //         )}
-                                    //         key={trail.url}
-                                    //     >
-                                    //         <span className={bigNumber}>
-                                    //             <BigNumber index={ii + 1} />
-                                    //         </span>
-                                    //         <h2 className={headlineHeader}>
-                                    //             <a
-                                    //                 className={headlineLink}
-                                    //                 href={trail.url}
-                                    //             >
-                                    //                 {trail.isLiveBlog && (
-                                    //                     <span
-                                    //                         className={
-                                    //                             liveKicker
-                                    //                         }
-                                    //                     >
-                                    //                         Live
-                                    //                     </span>
-                                    //                 )}
-                                    //                 {trail.linkText}
-                                    //             </a>
-                                    //         </h2>
-                                    //     </li>
-                                    // );
-                                )}
-                            </ol>
-                        </div>
-                    )}
+                                                    <span className={bigNumber}>
+                                                        <BigNumber
+                                                            index={ii + 1}
+                                                        />
+                                                    </span>
+                                                    <h2
+                                                        className={
+                                                            headlineHeader
+                                                        }
+                                                    >
+                                                        <a
+                                                            className={
+                                                                headlineLink
+                                                            }
+                                                            href={article.url}
+                                                        >
+                                                            {article.headline}
+                                                        </a>
+                                                    </h2>
+                                                </li>
+                                            ) : null;
+                                        },
+                                    )}
+                                </ol>
+                            </div>
+                        );
+                    }}
                 </AsyncClientComponent>
             </div>
         );
@@ -341,7 +286,7 @@ export class MostSupportedAfterArticle extends Component<
         )
             .then(response => {
                 if (!response.ok) {
-                    resolve([]);
+                    return;
                 }
                 return response.json();
             })
@@ -383,8 +328,6 @@ export class MostSupportedAfterArticle extends Component<
                 reportError(err, {
                     feature: 'most-supported',
                 });
-                // console.log(err);
-                // return resolve([]);
             });
     };
 }

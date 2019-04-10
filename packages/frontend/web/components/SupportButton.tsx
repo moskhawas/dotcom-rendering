@@ -2,7 +2,7 @@ import React from 'react';
 import { css } from 'emotion';
 import { palette } from '@guardian/pasteup/palette';
 import { sans } from '@guardian/pasteup/typography';
-import { desktop, tablet, leftCol } from '@guardian/pasteup/breakpoints';
+import { leftCol } from '@guardian/pasteup/breakpoints';
 import ArrowRightIcon from '@guardian/pasteup/icons/arrow-right.svg';
 
 const link = css`
