@@ -82,6 +82,21 @@ export const Analytics: React.FC<{
                 }
             </script>
         </amp-analytics>`,
+        `<amp-analytics>
+        <script type="application/json">
+            {
+                "requests": {
+                    "pageview": "http://localhost:3011/analytics?random=RANDOM&clientId=CLIENT_ID(cid-scope-cookie-fallback-name)&pvid=PAGE_VIEW_ID"
+                },
+                "triggers": {
+                        "trackPageview": {
+                        "on": "visible",
+                        "request": "pageview"
+                    }
+                }
+            }
+        </script>
+        </amp-analytics>`,
     ];
 
     // tslint:disable-next-line:react-no-dangerous-html

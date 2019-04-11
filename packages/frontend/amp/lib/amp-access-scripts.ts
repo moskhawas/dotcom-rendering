@@ -16,6 +16,7 @@ export const getAmpAccessScripts = () => {
         `<script async custom-element="amp-access" src="https://cdn.ampproject.org/v0/amp-access-0.1.js"></script>`,
         `<script id="amp-access" type="application/json">${JSON.stringify(
             ampAccessConfig,
-        )}</script>`,
+        )}</script>
+        <script async custom-element="amp-analytics" src="https://cdn.ampproject.org/v0/amp-analytics-0.1.js"></script>`,
     ];
 };
