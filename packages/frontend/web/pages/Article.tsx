@@ -3,7 +3,7 @@ import { Container } from '@guardian/guui';
 import { css, cx } from 'emotion';
 import { palette } from '@guardian/pasteup/palette';
 import { desktop, mobileLandscape } from '@guardian/pasteup/breakpoints';
-import { MostViewed } from '@frontend/web/components/MostViewed';
+// import { MostViewed } from '@frontend/web/components/MostViewed';
 import { Header } from '@frontend/web/components/Header/Header';
 import { Footer } from '@frontend/web/components/Footer';
 import { ArticleBody } from '@frontend/web/components/ArticleBody';
@@ -66,17 +66,6 @@ export const Article: React.FC<{
                 )}
             >
                 <MostSupportedAfterArticle />
-            </Container>
-            <Container
-                borders={true}
-                className={cx(
-                    articleContainer,
-                    css`
-                        border-top: 1px solid ${palette.neutral[86]};
-                    `,
-                )}
-            >
-                <MostViewed sectionName={data.CAPI.sectionName} />
             </Container>
         </main>
 

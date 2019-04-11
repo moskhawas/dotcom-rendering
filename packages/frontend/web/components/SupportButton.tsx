@@ -15,7 +15,7 @@ const link = css`
     position: absolute;
     right: 0;
     text-decoration: none;
-    top: 12px;
+    top: 6px;
     vertical-align: middle;
 
     svg {

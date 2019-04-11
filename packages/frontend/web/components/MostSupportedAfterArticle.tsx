@@ -286,10 +286,11 @@ export class MostSupportedAfterArticle extends Component<
     }
 
     public fetchTrails: () => Promise<Article[]> = () => {
-        // const contributionsURL = 'https://what-if-streaming-was-a-reality.ophan.co.uk/contributions'
-        const key = 'test';
+        // const contributionsURL = 'https://rank-index.s3.eu-west-1.amazonaws.com/2019-04-09.json';
         const contributionsURL =
-            'https://rank-index.s3.eu-west-1.amazonaws.com/2019-04-09.json';
+            'https://what-if-streaming-was-a-reality.ophan.co.uk/contributions';
+        const key = 'test';
+
         return fetch(contributionsURL)
             .then(response => {
                 if (!response.ok) {
@@ -299,9 +300,28 @@ export class MostSupportedAfterArticle extends Component<
             })
             .then(mostSupported => {
                 if (Array.isArray(mostSupported)) {
+                    const mostSupportedSorted = mostSupported
+                        .map(article => {
+                            article.avPer1000 =
+                                article.annualisedValueInGBP /
+                                (article.pageviews / 1000);
+                            article.acquisitionsPer1000 =
+                                article.acquisitions /
+                                (article.pageviews / 1000);
+                            return article;
+                        })
+                        .sort((a, b) => {
+                            /************************************
+                            CHANGE HERE FOR DIFFERENT SORT ORDER:
+                            ************************************/
+                            // return (b.acquisitionsPer1000 - a.acquisitionsPer1000);
+                            return b.avPer1000 - a.avPer1000;
+                        })
+                        .slice(0, 20);
                     return Promise.all(
-                        mostSupported.map((article, index) => {
-                            const url = new URL(`https://${article.url}`);
+                        mostSupportedSorted.map((article, index) => {
+                            // const url = new URL(`https://${article.url}`);
+                            const url = new URL(`${article.url}`);
                             const path = url.pathname;
                             const host = url.hostname;
                             if (
