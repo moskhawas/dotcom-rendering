@@ -66,6 +66,16 @@ export const Article: React.FC<{
                 )}
             >
                 <MostSupportedAfterArticle />
+            </Container>
+            <Container
+                borders={true}
+                className={cx(
+                    articleContainer,
+                    css`
+                        border-top: 1px solid ${palette.neutral[86]};
+                    `,
+                )}
+            >
                 <MostViewed sectionName={data.CAPI.sectionName} />
             </Container>
         </main>

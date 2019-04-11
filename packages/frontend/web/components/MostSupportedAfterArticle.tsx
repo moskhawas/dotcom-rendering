@@ -2,44 +2,38 @@ import React, { Component } from 'react';
 import { css } from 'emotion';
 import { headline, textSans } from '@guardian/pasteup/typography';
 import { palette } from '@guardian/pasteup/palette';
-import { desktop, tablet, leftCol, wide } from '@guardian/pasteup/breakpoints';
+import { tablet, leftCol, wide } from '@guardian/pasteup/breakpoints';
 import { BigNumber } from '@guardian/guui';
 import { AsyncClientComponent } from './lib/AsyncClientComponent';
 import { reportError } from '@frontend/web/browser/reportError';
 import { SupportButton } from './SupportButton';
 
 const container = css`
-    border-top: 1px solid ${palette.neutral[86]};
-    padding-top: 3px;
     position: relative;
-
-    ${desktop} {
-        padding-top: 6px;
-    }
+    padding-top: 6px;
+    min-height: 300px;
 `;
 
 const headingContainer = css`
-     {
-        position: relative;
+    position: relative;
 
-        :after {
-            content: '';
-            display: block;
-            position: absolute;
-            height: 30px;
-            width: 1px;
-            background-color: ${palette.neutral[86]};
-            right: -11px;
-            top: -6px;
-        }
+    :after {
+        content: '';
+        display: block;
+        position: absolute;
+        height: 30px;
+        width: 1px;
+        background-color: ${palette.neutral[86]};
+        right: -11px;
+        top: -6px;
+    }
 
-        ${leftCol} {
-            width: 140px;
-        }
+    ${leftCol} {
+        width: 140px;
+    }
 
-        ${wide} {
-            width: 220px;
-        }
+    ${wide} {
+        width: 220px;
     }
 `;
 
@@ -84,7 +78,7 @@ const list = css`
     clear: left;
     display: grid;
     grid-auto-flow: column;
-    grid-gap: 0 10px;
+    grid-gap: 0 24px;
     grid-template-columns: auto;
     grid-template-rows: repeat(10, auto);
     margin-top: 12px;
@@ -106,7 +100,7 @@ const listItem = css`
     animation: in 1.5s;
     box-sizing: border-box;
     padding-bottom: 24px;
-    padding-top: 4px;
+    padding-top: 6px;
     position: relative;
 
     @keyframes in {
@@ -128,6 +122,16 @@ const listItem = css`
         right: 10px;
         top: 0;
         width: 100%;
+    }
+
+    &:first-of-type,
+    &:nth-of-type(6) {
+        padding-top: 0;
+    }
+
+    &:first-of-type:before,
+    &:nth-of-type(6):before {
+        display: none;
     }
 
     ${tablet} {
@@ -162,6 +166,7 @@ const headlineHeader = css`
     padding-bottom: 2px;
     padding-top: 2px;
     word-wrap: break-word;
+    margin-right: 30px;
 `;
 
 const headlineLink = css`
@@ -280,10 +285,12 @@ export class MostSupportedAfterArticle extends Component<
         );
     }
 
-    public fetchTrails: () => Promise<any> = () => {
-        return fetch(
-            `https://what-if-streaming-was-a-reality.ophan.co.uk/contributions`,
-        )
+    public fetchTrails: () => Promise<Article[]> = () => {
+        // const contributionsURL = 'https://what-if-streaming-was-a-reality.ophan.co.uk/contributions'
+        const key = 'test';
+        const contributionsURL =
+            'https://rank-index.s3.eu-west-1.amazonaws.com/2019-04-09.json';
+        return fetch(contributionsURL)
             .then(response => {
                 if (!response.ok) {
                     return;
@@ -294,7 +301,7 @@ export class MostSupportedAfterArticle extends Component<
                 if (Array.isArray(mostSupported)) {
                     return Promise.all(
                         mostSupported.map((article, index) => {
-                            const url = new URL(article.url);
+                            const url = new URL(`https://${article.url}`);
                             const path = url.pathname;
                             const host = url.hostname;
                             if (
@@ -302,7 +309,7 @@ export class MostSupportedAfterArticle extends Component<
                                 host === 'www.theguardian.com'
                             ) {
                                 return fetch(
-                                    `https://content.guardianapis.com${path}?show-fields=headline&api-key=test`,
+                                    `https://content.guardianapis.com${path}?api-key=${key}`,
                                 )
                                     .then(capiResponse => {
                                         return capiResponse.json();
