@@ -8,11 +8,19 @@ import { TopMetaOpinion } from '@frontend/amp/components/TopMetaOpinion';
 import { SubMeta } from '@frontend/amp/components/SubMeta';
 import { pillarPalette } from '../../lib/pillars';
 import { palette } from '@guardian/pasteup/palette';
+import { getToneType, Tone } from '../lib/tag-utils';
 
-const body = (pillar: Pillar, isOpinion: boolean) => css`
-    background-color: ${isOpinion ? palette.opinion.faded : 'white'};
-    ${bulletStyle(pillar)}
-`;
+const body = (pillar: Pillar, tone: Tone) => {
+    const bgColorMap = {
+        isDefault: 'white',
+        isOpinion: palette.opinion.faded,
+        isPaidContent: palette.labs.neutral,
+    };
+    return css`
+        background-color: ${bgColorMap[tone]};
+        ${bulletStyle(pillar)}
+    `;
+};
 
 const bulletStyle = (pillar: Pillar) => css`
     .bullet {
@@ -37,17 +45,18 @@ export const Body: React.FC<{
     data: ArticleModel;
     config: ConfigType;
 }> = ({ pillar, data, config }) => {
-    const tone = data.tags.find(tag => tag.type === 'Tone');
-    const isOpinion = tone ? tone.id === 'tone/comment' : false;
+    const tone = getToneType(data.tags);
 
-    const topMeta = isOpinion ? (
-        <TopMetaOpinion articleData={data} />
-    ) : (
-        <TopMetaNews articleData={data} />
-    );
+    const topMeta =
+        tone === 'isOpinion' ? (
+            // TODO new topmeta for tone....
+            <TopMetaOpinion articleData={data} />
+        ) : (
+            <TopMetaNews articleData={data} />
+        );
 
     return (
-        <InnerContainer className={body(pillar, isOpinion)}>
+        <InnerContainer className={body(pillar, tone)}>
             {topMeta}
             <Elements
                 pillar={pillar}
