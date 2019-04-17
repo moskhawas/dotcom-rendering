@@ -27,7 +27,7 @@ export interface OtherColours {
     };
     state: { success: colour; error: colour };
     specialReport: { dark: colour };
-    labs: { dark: colour; main: colour };
+    labs: { dark: colour; main: colour; neutral: colour };
     green: { dark: colour; main: colour };
     brand: { dark: colour; main: colour; pastel: colour };
 }
@@ -115,7 +115,7 @@ const neutral = {
     20: '#333333',
     46: '#767676',
     60: '#999999',
-    86: '#dcdcdc',
+    86: '#dcdcdc', // on amp frontend - d9d9d9
     93: '#ededed',
     97: '#f6f6f6',
     100: '#ffffff',
@@ -124,8 +124,9 @@ const neutral = {
 const specialReport = { dark: '#3f464a' };
 
 const labs = {
-    dark: '#65a897',
-    main: '#69d1ca',
+    dark: '#65a897', // teal dark
+    main: '#69d1ca', // teal main
+    neutral: neutral[86],
 };
 
 const contrasts = {
