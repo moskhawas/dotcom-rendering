@@ -113,6 +113,7 @@ export const Elements: React.FC<{
                         html={element.html}
                         img={element.img}
                         credit={element.credit}
+                        pillar={pillar}
                     />
                 );
             default:
