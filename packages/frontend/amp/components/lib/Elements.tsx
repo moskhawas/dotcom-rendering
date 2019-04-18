@@ -15,6 +15,7 @@ import { AdComponent } from '@frontend/amp/components/elements/AdComponent';
 import { css } from 'emotion';
 import { DisclaimerBlockComponent } from '@frontend/amp/components/elements/DisclaimerBlockComponent';
 import { clean } from '@frontend/model/clean';
+import { Expandable } from '@frontend/amp/components/Expandable';
 
 const clear = css`
     clear: both;
@@ -101,6 +102,17 @@ export const Elements: React.FC<{
                         key={i}
                         html={element.html}
                         pillar={pillar}
+                    />
+                );
+            case 'model.dotcomrendering.pageElements.QABlockElement':
+                return (
+                    <Expandable
+                        id={element.id}
+                        type="Q&A"
+                        title={element.title}
+                        html={element.html}
+                        img={element.img}
+                        credit={element.credit}
                     />
                 );
             default:
